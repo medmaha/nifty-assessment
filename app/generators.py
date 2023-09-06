@@ -5,44 +5,62 @@ from django.db import transaction
 
 from .models import Manager, Branch, TransferHistory, Company, Region
 
+from django.db.models import Q
 
 # Function to generate TransferHistory data
+
+
 def generate_transfers():
     transfer_histories = []
-    branches = Branch.objects.all()
 
-    for manager in Manager.objects.all():
-        from_branch = random.choice(branches)
-        to_branch = random.choice(branches)
+    for manager in Manager.objects.filter(branch__gt=0):
+        from_branch = Branch.objects.filter(manager=manager).first()
+
+        if not from_branch:
+            continue
+
+        to_branch = Branch.objects.filter(~Q(manager=manager)).first()
+
+        if not to_branch:
+            continue
+
+        from_branch.posted_date = mutate_time()
+        from_branch.save()
 
         # Generate a random transfer_date greater than from_branch's posting_date
-        def time_factory(index=3):
-            from_branch_posting_date = from_branch.posted_date
+        from_branch_posting_date = from_branch.posted_date
 
-            transfer_date = from_branch_posting_date + timedelta(
-                days=random.randint(
-                    random.choice([100, 250, 500]), random.choice([500, 750, 1000])
-                )
-            )
+        print(from_branch_posting_date.year)
 
-            if transfer_date.year > 2022:
+        def generate_transfer_date(index=3):
+            year = from_branch_posting_date.year + random.randrange(1, 3)
+
+            if year > 2022:
                 if not index:
-                    return datetime(2022, 10, 2)
-                return time_factory(index - 1)
+                    return
+                return generate_transfer_date(index - 1)
+
+            month = random.randrange(1, 12)
+            day = random.randrange(1, 25)
+            transfer_date = datetime(year, month, day)
 
             return transfer_date
 
-        transfer_date = time_factory()
+        transfer_date = generate_transfer_date()
+        if not transfer_date:
+            continue
 
-        transfer_history_data = {
-            "manager": manager,
-            "to_branch": to_branch,
-            "from_branch": from_branch,
-            "transfer_date": transfer_date,
-            "remarks": f"Transfer from {from_branch.name} to {to_branch.name}",
-        }
+        remarks = f"Transfer from {from_branch.name} to {to_branch.name}"
 
-        transfer_histories.append(TransferHistory(**transfer_history_data))
+        transfer_history_data = TransferHistory(
+            manager=manager,
+            to_branch=to_branch,
+            from_branch=from_branch,
+            transfer_date=transfer_date,
+            remarks=remarks,
+        )
+
+        transfer_histories.append(transfer_history_data)
 
     # Use a transaction to create and save the TransferHistory records in bulk
     with transaction.atomic():
@@ -126,12 +144,10 @@ def g_phone():
 
 
 def mutate_time():
-    year = 1998 + random.randrange(1, random.choice([10, 23]))
+    year = 1998 + random.choice([i for i in range(18)])
     month = 0 + random.randrange(1, 10)
     day = 0 + random.randrange(2, 25)
-    hour = 0 + random.randrange(1, 24)
-    minute = random.randrange(0, 60)
-    date = datetime(year, month, day, hour, minute)
+    date = datetime(year, month, day)
     return date
 
 
@@ -229,3 +245,10 @@ high_profile_companies = [
 #     company = Company.objects.filter(name__icontains=company_name).first()
 #     branch.company = company
 #     branch.save()
+
+
+# TransferHistory.objects.filter().delete()
+# Branch.objects.filter().delete()
+
+# generate_branches()
+# generate_transfers()
