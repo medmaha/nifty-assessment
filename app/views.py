@@ -138,18 +138,26 @@ def company_details(request, id):
 def manager_details(request, id):
     manager = Manager.objects.filter(id=id).first()
     transfers = TransferHistory.objects.filter(manager=manager)
-    transfer = transfers.latest("transfer_date")
-    branch = transfer.to_branch
+
+    if transfers:
+        transfer = transfers.latest("transfer_date")
+        branch = transfer.to_branch
+        branch.posted_date = transfer.transfer_date
+    else:
+        branch = (
+            Branch.objects.filter(manager=manager)
+            or TransferHistory.objects.filter(to_branch__manager=manager)
+            or TransferHistory.objects.filter(from_branch__manager=manager)
+        )
     try:
         branch.name = branch.name.split(branch.company.name)[1]
     except:
         pass
-    branch.posted_date = transfer.transfer_date
 
     context = {
         "manager": manager,
         "branch": branch,
-        "transfers_page": transfers.order_by("-transfer_date"),
+        "transfers_page": transfers.distinct().order_by("-transfer_date"),
         "active_tab": "managers",
     }
 

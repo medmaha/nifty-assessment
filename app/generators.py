@@ -14,12 +14,12 @@ def generate_transfers():
     transfer_histories = []
 
     for manager in Manager.objects.filter(branch__gt=0):
-        from_branch = Branch.objects.filter(manager=manager).first()
+        from_branch = random.choice(Branch.objects.filter())
 
         if not from_branch:
             continue
 
-        to_branch = Branch.objects.filter(~Q(manager=manager)).first()
+        to_branch = random.choice(Branch.objects.filter(~Q(manager=manager)))
 
         if not to_branch:
             continue
@@ -33,7 +33,7 @@ def generate_transfers():
         print(from_branch_posting_date.year)
 
         def generate_transfer_date(index=3):
-            year = from_branch_posting_date.year + random.randrange(1, 3)
+            year = from_branch_posting_date.year + random.randrange(1, 5)
 
             if year > 2022:
                 if not index:
