@@ -22,13 +22,12 @@ def index(request):
     manager_gender = "all"
 
     if queries.get("m-gender"):
-        match queries["m-gender"].lower():
-            case "male":
-                manager_gender = "male"
-                managers = managers.filter(gender__iexact="male")
-            case "female":
-                manager_gender = "female"
-                managers = managers.filter(gender__iexact="female")
+        if "male" == queries["m-gender"]:
+            manager_gender = "male"
+            managers = managers.filter(gender__iexact="male")
+        if "female" == queries["m-gender"]:
+            manager_gender = "female"
+            managers = managers.filter(gender__iexact="female")
 
     m_paginator = Paginator(managers, ITEMS_PER_PAGE)
     page = request.GET.get("page")
@@ -72,13 +71,13 @@ def managers(request):
     gender = "all"
 
     if request.GET.get("m-gender"):
-        match request.GET["m-gender"].lower():
-            case "male":
-                gender = "male"
-                _managers = _managers.filter(gender__iexact="male")
-            case "female":
-                gender = "female"
-                _managers = _managers.filter(gender__iexact="female")
+        if "male" == request.GET["m-gender"]:
+            gender = "male"
+            _managers = managers.filter(gender__iexact="male")
+
+        if "female" == request.GET["m-gender"]:
+            gender = "female"
+            managers = managers.filter(gender__iexact="female")
 
     page = request.GET.get("page")
     paginator = Paginator(_managers, ITEMS_PER_PAGE)
@@ -162,45 +161,44 @@ def search_results(request):
     __page_obj_name = "abc"
     __template_partial = ""
 
-    match model.lower():
-        case "companies":
-            __page_obj_name = "companies_page"
-            __template_partial = "company-list.html"
-            __model = Company.objects.filter(
-                Q(name__icontains=query) | Q(name__istartswith=query)
-            )
-        case "managers":
-            __page_obj_name = "managers_page"
-            __template_partial = "manager-list.html"
-            __model = Manager.objects.filter(
-                Q(first_name__icontains=query)
-                | Q(last_name__istartswith=query)
-                | Q(middle_name__istartswith=query)
-            )
-        case "branches":
-            __page_obj_name = "branches_page"
-            __template_partial = "branch-list.html"
-            __model = Manager.objects.filter(
-                Q(first_name__icontains=query)
-                | Q(last_name__istartswith=query)
-                | Q(middle_name__istartswith=query)
-            )
-        case "transfer":
-            __page_obj_name = "transfers_page"
-            __template_partial = "transfer-list.html"
+    if model.lower() == "companies":
+        __page_obj_name = "companies_page"
+        __template_partial = "company-list.html"
+        __model = Company.objects.filter(
+            Q(name__icontains=query) | Q(name__istartswith=query)
+        )
+    elif model.lower() == "managers":
+        __page_obj_name = "managers_page"
+        __template_partial = "manager-list.html"
+        __model = Manager.objects.filter(
+            Q(first_name__icontains=query)
+            | Q(last_name__istartswith=query)
+            | Q(middle_name__istartswith=query)
+        )
+    elif model.lower() == "branches":
+        __page_obj_name = "branches_page"
+        __template_partial = "branch-list.html"
+        __model = Manager.objects.filter(
+            Q(first_name__icontains=query)
+            | Q(last_name__istartswith=query)
+            | Q(middle_name__istartswith=query)
+        )
+    elif model.lower() == "transfer":
+        __page_obj_name = "transfers_page"
+        __template_partial = "transfer-list.html"
 
-            to_date = request.GET.get("to_date")
-            from_date = request.GET.get("from_date")
+        to_date = request.GET.get("to_date")
+        from_date = request.GET.get("from_date")
 
-            t_year, t_month, t_day = to_date.split("-")
-            f_year, f_month, f_day = from_date.split("-")
+        t_year, t_month, t_day = to_date.split("-")
+        f_year, f_month, f_day = from_date.split("-")
 
-            start_date = datetime(int(f_year), int(f_month), int(f_day))
-            end_date = datetime(int(t_year), int(t_month), int(t_day))
+        start_date = datetime(int(f_year), int(f_month), int(f_day))
+        end_date = datetime(int(t_year), int(t_month), int(t_day))
 
-            __model = TransferHistory.objects.filter(
-                transfer_date__gte=start_date, transfer_date__lte=end_date
-            )
+        __model = TransferHistory.objects.filter(
+            transfer_date__gte=start_date, transfer_date__lte=end_date
+        )
     if __model:
         page = request.GET.get("page")
         paginator = Paginator(__model, ITEMS_PER_PAGE)
@@ -223,20 +221,19 @@ def paginate_results(request):
     __page_obj_name = "abc"
     __template_partial = ""
 
-    match model.lower():
-        case "managers":
+    if model.lower() == "managers":
             __page_obj_name = "managers_page"
             __template_partial = "manager-list.html"
             __model = Manager.objects.filter(branch__gte=0)
-        case "branches":
+    if model.lower() == "branches":
             __page_obj_name = "branches_page"
             __template_partial = "branch-list.html"
             __model = Branch.objects.filter()
-        case "company":
+    if model.lower() == "company":
             __page_obj_name = "companies_page"
             __template_partial = "company-list.html"
             __model = Company.objects.filter()
-        case "transfers":
+    if model.lower() == "transfers":
             __page_obj_name = "transfers_page"
             __template_partial = "transfer-list.html"
             __model = TransferHistory.objects.filter()
@@ -253,24 +250,3 @@ def paginate_results(request):
         context = {}
 
     return render(request, f"app/partials/{__template_partial}", context)
-
-
-def sort(request):
-    order_by = request.GET.get("field")
-    model = request.GET.get("m")
-
-    __model = None
-    __page_obj_name = "abc"
-    __template_partial = ""
-
-    match model.lower():
-        case "transfer":
-            transfers = TransferHistory.objects.all()
-            page = request.GET.get("page")
-            paginator = Paginator(transfers, ITEMS_PER_PAGE)
-
-            transfers_page = paginator.get_page(page)
-            __page_obj_name = "transfers_page"
-            __template_partial = "transfer-list.html"
-
-            paginator.object_list.order_by("")
