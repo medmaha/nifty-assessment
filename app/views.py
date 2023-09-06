@@ -67,17 +67,16 @@ def companies(request):
 
 def managers(request):
     _managers = Manager.objects.filter(branch__gte=0)
-
     gender = "all"
 
     if request.GET.get("m-gender"):
         if "male" == request.GET["m-gender"]:
             gender = "male"
-            _managers = managers.filter(gender__iexact="male")
+            _managers = _managers.filter(gender__iexact="male")
 
         if "female" == request.GET["m-gender"]:
             gender = "female"
-            managers = managers.filter(gender__iexact="female")
+            _managers = _managers.filter(gender__iexact="female")
 
     page = request.GET.get("page")
     paginator = Paginator(_managers, ITEMS_PER_PAGE)

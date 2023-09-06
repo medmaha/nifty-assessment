@@ -1,7 +1,7 @@
 {% extends 'app/base.html' %}
 
 {% block header %}
-  <h1>Welcome to Your Company Management System</h1>
+  <h1>System for Tracking Managers</h1>
   <div class="search-container">
     <form hx-trigger="submit" hx-target="#managersList" hx-get="{% url 'search_results' %}" style="width:100%; padding-top: 1rem;">
       <input type="search" placeholder="Search managers" name="query" class="search-input" />

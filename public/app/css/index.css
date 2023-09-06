@@ -53,9 +53,13 @@ nav h2 {
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
+    padding-right: 1rem;
 }
 
 nav ul {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     list-style-type: none;
 }
 
