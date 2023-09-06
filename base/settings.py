@@ -26,7 +26,7 @@ SECRET_KEY = "django-insecure-x-qll6a9x3)vq+tb+kzuz7bmgak(@dccf*+0_%2rbtv^ecr@io
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["nifty-assessment.onrender.com"]
+ALLOWED_HOSTS = [".onrender.com", ".vercel.app", "localhost"]
 
 
 # Application definition
@@ -37,7 +37,6 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
-    "whitenoise.runserver_nostatic",
     "django.contrib.staticfiles",
     "app",
 ]
@@ -115,8 +114,6 @@ USE_I18N = True
 
 USE_TZ = False
 
-
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 STATIC_URL = "static/"
 STATICFILES_DIRS = (os.path.join(BASE_DIR, "app/static/app"),)
