@@ -1,0 +1,59 @@
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Company</th>
+      <th>Branch</th>
+      <th>Phone</th>
+      <th>Gender</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for manager in managers_page %}
+      <tr>
+        {# prettier-ignore-start #}
+        <td>
+          <a href="{% url 'manager_details' id=manager.id %}">
+                {{manager.name}}
+              </a>
+        </td>
+        <td>
+          <a class="table-link" href="{% url 'company_details' manager.get_branch.company.id %}">
+            {{ manager.get_branch.company.name }}
+          </a>
+        </td>
+        <td>
+            {{ manager.get_branch.name }}
+       
+          
+        </td>
+        <td>
+          <span class="date">{{ manager.phone }}</span>
+        </td>
+        <td>{{ manager.gender.capitalize }}</td>
+        {# prettier-ignore-end #}
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% if not managers_page %}
+  <p style="padding: 1rem;">No Results Found</p>
+{% endif %}
+{% if managers_page.has_previous or managers_page.has_next %}
+  <div class="pagination">
+    <span class="step-links">
+      {% if managers_page.has_previous %}
+        {% if managers_page.number > 2 %}
+          <a hx-target="#managersList" hx-trigger="click" hx-get="/paginate?m=managers&page=1">&laquo; First Page</a>
+        {% endif %}
+        <a hx-target="#managersList" hx-trigger="click" hx-get="/paginate?m=managers&page={{ managers_page.previous_page_number }}">Prev</a>
+      {% endif %}
+
+      {% if managers_page.has_next %}
+        <a hx-target="#managersList" hx-trigger="click" hx-get="/paginate?m=managers&page={{ managers_page.next_page_number }}">Next</a>
+        <a hx-target="#managersList" hx-trigger="click" hx-get="/paginate?m=managers&page={{ managers_page.paginator.num_pages }}">Last Page &raquo;</a>
+      {% endif %}
+    </span>
+    <span class="current-page">Page {{ managers_page.number }} of {{ managers_page.paginator.num_pages }}.</span>
+  </div>
+{% endif %}

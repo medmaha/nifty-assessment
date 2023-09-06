@@ -1,0 +1,63 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      {% if active_tab.lower != 'hom' %}
+        {{ active_tab.capitalize }} |
+      {% endif %}Nifty's Assessment
+    </title>
+    <link rel="stylesheet" href="{% static 'css/index.css' %}" />
+
+    <script src="{% static 'js/htmx.js' %}"></script>
+  </head>
+  <body>
+    <header>
+      <nav>
+        {# prettier-ignore-start #}
+          <a href="{% url 'index' %}">
+            <h2>Nifty's Assessment</h2>
+          </a>
+        <ul>
+            <li>
+                <a href="{% url 'index' %}" class="{% if active_tab == 'home' %} active {% endif %}">Home</a>
+            </li>
+            <li>
+                <a href="{% url 'companies' %}" class="{% if active_tab == 'companies' %} active {% endif %}">Companies</a>
+            </li>
+            <li>
+                <a href="{% url 'managers' %}" class="{% if active_tab == 'managers' %} active {% endif %}">Managers</a>
+            </li>
+            <li>
+                <a href="{% url 'branches' %}" class="{% if active_tab == 'branches' %} active {% endif %}">Branches</a>
+            </li>
+            <li>
+                <a href="{% url 'transfer-histories' %}" class="{% if active_tab == 'transfers' %} active {% endif %}">All Transfers</a>
+            </li>
+        </ul>
+          {# prettier-ignore-end #}
+      </nav>
+      <section class="welcome">
+        {% block header %}
+          <h1>Welcome to Your Financial Management System</h1>
+          <p>Manage your company, regions, branches, and managers with ease.</p>
+        {% endblock %}
+      </section>
+    </header>
+    <main>
+      {% block content %}
+
+      {% endblock %}
+    </main>
+
+    {% block script %}
+
+    {% endblock %}
+
+    <footer>
+      <p>&copy; 2023 All rights reserved</p>
+    </footer>
+  </body>
+</html>

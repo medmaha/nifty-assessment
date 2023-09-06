@@ -1,0 +1,21 @@
+{% extends 'app/base.html' %}
+
+{% block header %}
+  <h1>Companies List</h1>
+  <div class="search-container">
+    <form hx-trigger="submit" hx-target="#companyList" hx-get="{% url 'search_results' %}" style="width:100%">
+      <input type="search" placeholder="Search company_name" name="query" class="search-input" />
+      <input type="hidden" name="model" value="companies" />
+      <button type="submit" class="search-button">Search</button>
+    </form>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <!-- ? Companies -->
+  <section class="">
+    <div id="companyList">
+      {% include 'app/partials/company-list.html' %}
+    </div>
+  </section>
+{% endblock %}

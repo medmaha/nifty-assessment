@@ -1,0 +1,29 @@
+{% extends 'app/base.html' %}
+
+{% block header %}
+  <h1>All Transfers Histories</h1>
+  <div class="search-container">
+    <form hx-trigger="change" hx-target="#transfersList" hx-get="{% url 'search_results' %}" style="width: 100%; padding-top: 1rem;">
+      <div style="display: flex; align-items: center; gap:2rem">
+        <div style="display: inline-flex; flex-direction: column; gap:3px">
+          <label for="from">From:</label>
+          <input type="date" id="from" placeholder="Search by transfer_date..." style="width: max-content;" name="from_date" class="search-input" value="2000-01-01" min="2000-01-01" max="2021-12-31" />
+        </div>
+        <div style="display: inline-flex; flex-direction: column; gap:3px">
+          <label for="to">To:</label>
+          <input type="date" id="to" placeholder="Search by transfer_date..." style="width: max-content;" name="to_date" class="search-input" value="2022-12-31" min="2001-01-01" max="2022-12-31" />
+        </div>
+      </div>
+      <input type="hidden" name="model" value="transfer" />
+    </form>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <section class="">
+    <!--  -->
+    <div id="transfersList">
+      {% include 'app/partials/transfer-list.html' %}
+    </div>
+  </section>
+{% endblock %}

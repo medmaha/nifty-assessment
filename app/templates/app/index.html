@@ -1,0 +1,51 @@
+{% extends 'app/base.html' %}
+
+{% block header %}
+  <h1>Welcome to Your Company Management System</h1>
+  <div class="search-container">
+    <form hx-trigger="submit" hx-target="#managersList" hx-get="{% url 'search_results' %}" style="width:100%; padding-top: 1rem;">
+      <input type="search" placeholder="Search managers" name="query" class="search-input" />
+      <input type="hidden" name="model" value="managers" />
+      <button type="submit" class="search-button">Search</button>
+    </form>
+  </div>
+{% endblock %}
+
+<!-- Content -->
+{% block content %}
+  <!-- ? Managers -->
+  <section class="">
+    <div class="flex-between h3">
+      <h3>Managers</h3>
+      <div class="flex-between">
+        <p style="font-size: 16px">Gender:</p>
+        <div class="flex-between">
+          {# prettier-ignore-start #}
+          <a href="/?m-gender=all" class="gender {% if not gender or gender.lower == 'all' %} active {% endif %}">All</a>
+          <a href="/?m-gender=male" class="gender {% if gender == 'male' %} active {% endif %}">Male</a>
+          <a href="/?m-gender=female" class="gender {% if gender == 'female' %} active {% endif %}">Female</a>
+          {# prettier-ignore-end #}
+        </div>
+      </div>
+    </div>
+    <div id="managersList">
+      {% include 'app/partials/manager-list.html' %}
+    </div>
+  </section>
+
+  <!-- ? Companies -->
+  <section class="">
+    <h3>Companies</h3>
+    <div id="companyList">
+      {% include 'app/partials/company-list.html' %}
+    </div>
+  </section>
+
+  <!-- ? Branches -->
+  <section class="">
+    <h3>Branches</h3>
+    <div id="branchesList">
+      {% include 'app/partials/branch-list.html' %}
+    </div>
+  </section>
+{% endblock %}

@@ -1,0 +1,48 @@
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Company</th>
+      <th>Manager</th>
+      <th>Region</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for branch in branches_page %}
+      {# prettier-ignore-start #}
+      <tr>
+        <td>{{ branch.name }}</td>
+        <td>
+          <a class="table-link" href="{% url 'company_details' branch.company.id %}">
+            {{ branch.company.name }}
+          </a>
+        </td>
+        <td>
+            <a class="table-link" href="{% url 'manager_details' branch.manager.id %}">
+              {{ branch.manager.name }}
+            </a>
+        </td>
+        <td>{{ branch.region.name.upper }}</td>
+      </tr>
+      {# prettier-ignore-end #}
+    {% endfor %}
+  </tbody>
+</table>
+{% if branches_page.has_previous or branches_page.has_next %}
+  <div class="pagination">
+    <span class="step-links">
+      {% if branches_page.has_previous %}
+        {% if branches_page.number > 2 %}
+          <a hx-target="#branchesList" hx-trigger="click" hx-get="/paginate?m=branches&page=1">&laquo; First Page</a>
+        {% endif %}
+        <a hx-target="#branchesList" hx-trigger="click" hx-get="/paginate?m=branches&page={{ branches_page.previous_page_number }}">Prev</a>
+      {% endif %}
+
+      {% if branches_page.has_next %}
+        <a hx-target="#branchesList" hx-trigger="click" hx-get="/paginate?m=branches&page={{ branches_page.next_page_number }}">Next</a>
+        <a hx-target="#branchesList" hx-trigger="click" hx-get="/paginate?m=branches&page={{ branches_page.paginator.num_pages }}">Last Page &raquo;</a>
+      {% endif %}
+    </span>
+    <span class="current-page">Page {{ branches_page.number }} of {{ branches_page.paginator.num_pages }}.</span>
+  </div>
+{% endif %}

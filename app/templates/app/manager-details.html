@@ -1,0 +1,143 @@
+{% extends 'app/base.html' %}
+
+<!-- Header -->
+{% block header %}
+  <h1>Manager Details</h1>
+  <p>
+    Learn more about the management history of
+    {# prettier-ignore-start #}
+    <strong>
+        {% if manager.gender.lower == 'male' %}
+        Mr. {{ manager.last_name }} 
+        {% else %}
+        Mrs. {{ manager.last_name }} 
+        {% endif %}
+    </strong>
+    {# prettier-ignore-end #}
+  </p>
+  <!-- <h1 class="heading">{{manager.last_name}}</h1> -->
+{% endblock %}
+
+{% block content %}
+  <section style="padding-top: 1rem">
+    <table>
+      <tr>
+        <td>
+          <strong>Full Name:</strong>
+        </td>
+        <td>{{ manager.name }}</td>
+      </tr>
+      <tr>
+        <td>
+          <strong>Email:</strong>
+        </td>
+        <td>{{ manager.email }}</td>
+      </tr>
+      <tr>
+        <td>
+          <strong>Phone:</strong>
+        </td>
+        <td>{{ manager.phone }}</td>
+      </tr>
+      <tr>
+        <td>
+          <strong>Gender:</strong>
+        </td>
+        <td>{{ manager.gender }}</td>
+      </tr>
+    </table>
+  </section>
+  <section class="">
+    <div class="" style="
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 0;
+        ">
+      <h3>Current Branch</h3>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Company</th>
+          <th>Region</th>
+          <th>Phone</th>
+          <th>Date Posted</th>
+        </tr>
+      </thead>
+      <tbody>
+        <td>{{ branch.name }}</td>
+        <td>{{ branch.company.name }}</td>
+        <td>{{ branch.region.name.upper }}</td>
+        <td>
+          <span class="date">{{ branch.manager.phone }}</span>
+        </td>
+        <td>
+          <span class="date">{{ branch.posted_date|date:'jS M Y' }}</span>
+        </td>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="">
+    <div class="" style="
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 0;
+        ">
+      <h3>Transfer Histories</h3>
+      <!--           <form method="get" style="margin-top: 1rem">
+            <label for="transfer_date">Filter by Transfer Date:</label>
+            <input type="date" name="transfer_date" id="transfer_date" />
+            <button type="submit">Filter</button>
+        </form>           -->
+    </div>
+
+    {% if not transfers %}
+      <p style="padding: 0.5rem 1rem; font-size: 14px">No recent transfer</p>
+    {% endif %}
+    <!--  -->
+    {% if transfers %}
+      <table>
+        <thead>
+          <tr>
+            <th>From</th>
+            <th>To</th>
+            <th style="
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 0.5rem;
+                        justify-content: space-between;
+                    ">
+              <span>Transfer Date</span>
+              <span>
+                {% if filter == 'asc' %}
+                  &darr;
+                {% else %}
+                  ▼
+                {% endif %}
+              </span>
+            </th>
+            <th>Remarks</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for transfer in transfers %}
+            <tr>
+              <td>{{ transfer.from_branch.name }}</td>
+              <td>{{ transfer.to_branch.name }}</td>
+              <td>
+                <span class="date">{{ transfer.transfer_date|date:'jS M Y' }}</span>
+              </td>
+              <td>
+                <span class="remarks">{{ transfer.remarks }}</span>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+  </section>
+{% endblock %}

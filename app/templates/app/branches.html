@@ -1,0 +1,20 @@
+{% extends 'app/base.html' %}
+
+{% block header %}
+  <h1>Branches List</h1>
+  <div class="search-container">
+    <form hx-trigger="submit" hx-target="#branchesList" hx-get="{% url 'search_results' %}" style="width:100%; padding-top: 1rem;">
+      <input type="search" placeholder="Search a branch..." name="query" class="search-input" />
+      <input type="hidden" name="model" value="branch" />
+      <button type="submit" class="search-button">Search</button>
+    </form>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <section class="">
+    <div id="branchesList">
+      {% include 'app/partials/branch-list.html' %}
+    </div>
+  </section>
+{% endblock %}

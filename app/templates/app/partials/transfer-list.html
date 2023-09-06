@@ -1,0 +1,75 @@
+<table>
+  <thead>
+    <tr>
+      <th>
+        <div class="flex-between">
+          <span>Manager</span>
+          {% comment %} <form title="Sort by Manager name" action="/sort?field=manager&m=transfer">
+            <button class="sort" style="margin-right: 0.5rem;">
+              <svg xmlns="http://www.w3.org/2000/svg" height="16" viewBox="0 -960 960 960" width="16">
+                <path d="m96-288 144.28-384H323l144 384h-80l-32.372-92H208l-32 92H96Zm135-158h100l-48-143h-4l-48 143Zm304 158v-73l195-242H544v-69h270v73L621-357h195v69H535ZM360-744l120-120 120 120H360ZM480-96 360-216h240L480-96Z" />
+              </svg>
+            </button>
+          </form> {% endcomment %}
+        </div>
+      </th>
+      <th>From</th>
+      <th>To</th>
+      <th>
+        <div class="flex-between">
+          <span>Transfer Date</span>
+          {% comment %} <form title="Sort by Transfer date" hx-trigger="submit" hx-target="#transfersList" hx-get="/sort?field=date&m=transfer">
+            <button type="submit" class="sort" style="margin-right: 0.5rem; color: currentColor;">
+              <svg xmlns="http://www.w3.org/2000/svg" height="16" viewBox="0 -960 960 960" width="16">
+                <path d="m96-288 144.28-384H323l144 384h-80l-32.372-92H208l-32 92H96Zm135-158h100l-48-143h-4l-48 143Zm304 158v-73l195-242H544v-69h270v73L621-357h195v69H535ZM360-744l120-120 120 120H360ZM480-96 360-216h240L480-96Z" />
+              </svg>
+            </button>
+          </form> {% endcomment %}
+        </div>
+      </th>
+      <th>Remarks</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for transfer in transfers_page %}
+      <tr>
+        <td>
+          {# prettier-ignore #}
+          <a href="{% url 'manager_details' transfer.manager.id %}" class="table-link">
+            {{ transfer.from_branch.manager.name }}
+          </a>
+        </td>
+        <td>{{ transfer.from_branch.name }}</td>
+        <td>{{ transfer.to_branch.name }}</td>
+        <td>
+          <span class="date">{{ transfer.transfer_date|date:'jS M Y' }}</span>
+        </td>
+        <td>
+          <span class="remarks">{% lorem %}</span>
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% if not transfers_page %}
+  <p style="padding: 0.5rem 1rem; font-size: 14px">No recent transfer</p>
+{% endif %}
+
+{% if transfers_page.has_previous or transfers_page.has_next %}
+  <div class="pagination">
+    <span class="step-links">
+      {% if transfers_page.has_previous %}
+        {% if transfers_page.number > 2 %}
+          <a hx-target="#transfersList" hx-trigger="click" hx-get="/paginate?m=transfers&page=1">&laquo; First Page</a>
+        {% endif %}
+        <a hx-target="#transfersList" hx-trigger="click" hx-get="/paginate?m=transfers&page={{ transfers_page.previous_page_number }}">Prev</a>
+      {% endif %}
+
+      {% if transfers_page.has_next %}
+        <a hx-target="#transfersList" hx-trigger="click" hx-get="/paginate?m=transfers&page={{ transfers_page.next_page_number }}">Next</a>
+        <a hx-target="#transfersList" hx-trigger="click" hx-get="/paginate?m=transfers&page={{ transfers_page.paginator.num_pages }}">Last Page &raquo;</a>
+      {% endif %}
+    </span>
+    <span class="current-page">Page {{ transfers_page.number }} of {{ transfers_page.paginator.num_pages }}.</span>
+  </div>
+{% endif %}

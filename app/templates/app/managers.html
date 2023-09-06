@@ -1,0 +1,30 @@
+{% extends 'app/base.html' %}
+
+{% block header %}
+  <h1>Managers List</h1>
+  <div class="search-container">
+    <form hx-trigger="submit" hx-target="#managersList" hx-get="{% url 'search_results' %}" style="width:100%">
+      <input type="search" placeholder="Search managers" name="query" class="search-input" />
+      <input type="hidden" name="model" value="managers" />
+      <button type="submit" class="search-button">Search</button>
+    </form>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <section class="">
+    <div class="flex-between" style="justify-content: flex-end; padding: .5rem 1rem">
+      <p style="font-size: 16px">Gender:</p>
+      <div class="flex-between">
+        {# prettier-ignore-start #}
+          <a href="/managers?m-gender=all" class="gender {% if not gender or gender.lower == 'all' %} active {% endif %}">All</a>
+          <a href="/managers?m-gender=male" class="gender {% if gender == 'male' %} active {% endif %}">Male</a>
+          <a href="/managers?m-gender=female" class="gender {% if gender == 'female' %} active {% endif %}">Female</a>
+          {# prettier-ignore-end #}
+      </div>
+    </div>
+    <div id="managersList">
+      {% include 'app/partials/manager-list.html' %}
+    </div>
+  </section>
+{% endblock %}
