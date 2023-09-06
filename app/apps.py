@@ -6,6 +6,6 @@ class AppConfig(AppConfig):
     name = "app"
 
     def ready(self) -> None:
-        # from . import generators
+        from . import generators
 
         return super().ready()

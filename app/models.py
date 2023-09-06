@@ -98,18 +98,19 @@ class TransferHistory(models.Model):
         return self.manager.name + " --> " + self.to_branch.name
 
     def save(self, *args, **kwargs):
-        # if self.to_branch.manager:
-        #     self.from_branch.manager = self.to_branch.manager
+        if not self.pk:
+            if self.to_branch.manager and not self.to_branch.manager == self.manager:
+                self.from_branch.manager = self.to_branch.manager
 
-        # elif not self.to_branch.manager:
-        #     self.to_branch.manager = self.manager
+            elif not self.to_branch.manager:
+                self.to_branch.manager = self.manager
 
-        # elif not self.to_branch.manager == self.manager:
-        #     self.to_branch.manager = self.manager
+            elif not self.to_branch.manager == self.manager:
+                self.to_branch.manager = self.manager
 
-        # self.posted_date = self.from_branch.posted_date
+            self.posted_date = self.from_branch.posted_date
 
-        self.to_branch.save()
-        self.manager.save()
+            self.to_branch.save()
+            self.manager.save()
 
         return super().save(*args, **kwargs)

@@ -7,7 +7,7 @@ from .models import Manager, Branch, TransferHistory, Company, Region
 
 
 # Function to generate TransferHistory data
-def generate_transfer_history_data():
+def generate_transfers():
     transfer_histories = []
     branches = Branch.objects.all()
 
@@ -16,10 +16,23 @@ def generate_transfer_history_data():
         to_branch = random.choice(branches)
 
         # Generate a random transfer_date greater than from_branch's posting_date
-        from_branch_posting_date = from_branch.posted_date
-        transfer_date = from_branch_posting_date + timedelta(
-            days=random.randint(1, 365)
-        )
+        def time_factory(index=3):
+            from_branch_posting_date = from_branch.posted_date
+
+            transfer_date = from_branch_posting_date + timedelta(
+                days=random.randint(
+                    random.choice([100, 250, 500]), random.choice([500, 750, 1000])
+                )
+            )
+
+            if transfer_date.year > 2022:
+                if not index:
+                    return datetime(2022, 10, 2)
+                return time_factory(index - 1)
+
+            return transfer_date
+
+        transfer_date = time_factory()
 
         transfer_history_data = {
             "manager": manager,
@@ -37,48 +50,64 @@ def generate_transfer_history_data():
         print("TransferHistory records created successfully.")
 
 
-def generate_branch_data():
-    branches = []
+def generate_branches():
     for company_info in high_profile_companies:
         company_name = company_info["name"]
         company_location = company_info["location"]
-
         # Create 2 branches for each high-profile company
-        _r = random.choice([2, 5, 3, 1, 6])
+        _r = random.choice([2, 5, 3, 4, 6])
         for _ in range(_r):
-            branch_name = f"{company_name} Branch {_ + 1}"
-            branch_region, _ = Region.objects.get_or_create(name=company_info["region"])
-            manager = Manager.objects.order_by("?").first()  # Random manager selection
-            branch_data = {
-                "name": branch_name,
-                "company": Company.objects.get(name=company_name),
-                "region": branch_region,
-                "manager": manager,
-                "posted_date": mutate_time(),  # You can set this to a specific date if needed
-            }
-            branches.append(Branch(**branch_data))
+            branch = Branch()
 
-        # Use a transaction to create and save the branches in bulk
-        with transaction.atomic():
-            Branch.objects.bulk_create(branches)
+            branch.name = f"{company_name} Branch {_ + 1}"
+            branch.company = Company.objects.order_by("?").first()
+            branch.region, _ = Region.objects.get_or_create(name=company_info["region"])
+            branch.manager = Manager.objects.order_by("?").first()
+            branch.posted_date = mutate_time()
+
+            branch.save()
+
+    print("[Done Branches]")
 
 
 def generate_managers():
     managers = []
     for person in manager_names:
-        manager = Manager()
+        _manager = Manager()
         try:
             name, surname, middle, gender = person.split(" ")
-            manager.middle_name = middle
+            _manager.middle_name = middle
         except:
             name, surname, gender = person.split(" ")
 
-        manager.first_name = name
-        manager.last_name = surname
-        manager.phone = g_phone()
-        manager.gender = gender
+        _manager.first_name = name
+        _manager.last_name = surname
+        _manager.phone = g_phone()
+        _manager.gender = gender
+        _manager.email = (name + surname + "@gmail.com").lower()
+        managers.append(_manager)
 
-        managers.append(manager)
+    with transaction.atomic():
+        Manager.objects.bulk_create(managers)
+        print("[Done] --> Managers")
+
+
+def generate_companies():
+    companies = []
+    for company in high_profile_companies:
+        _company = Company()
+
+        _company.name = company["name"]
+        _company.town = company["location"]
+        _company.street_name = company["street_name"]
+        _company.street_number = company["street_number"]
+        _company.region = Region.objects.get_or_create(name=company["region"])[0]
+
+        companies.append(_company)
+
+    with transaction.atomic():
+        Company.objects.bulk_create(companies)
+        print("[Done] --> Companies")
 
 
 def g_phone():
@@ -136,13 +165,6 @@ manager_names = [
 
 
 high_profile_companies = [
-    {
-        "name": "Nitfy ICT Solutions",
-        "location": "Brusubi",
-        "street_name": "Off Demba Doo Highway",
-        "street_number": "1",
-        "region": "WCR",
-    },
     {
         "name": "Jah Oil Company Gambia Limited",
         "location": "Serrekunda",
@@ -202,14 +224,8 @@ high_profile_companies = [
 ]
 
 
-for manager in Manager.objects.all():
-    # Generate a random transfer_date greater than from_branch's posting_date
-    domain = random.choice(["gmail", "outlook", "yahoo", "gmail"])
-    manager.email = (
-        manager.first_name
-        + manager.middle_name
-        + manager.last_name
-        + f"@{domain}.com"
-    )
-    manager.email = manager.email.lower()
-    manager.save()
+# for branch in Branch.objects.all():
+#     company_name = branch.name.split(" Branch")[0]
+#     company = Company.objects.filter(name__icontains=company_name).first()
+#     branch.company = company
+#     branch.save()

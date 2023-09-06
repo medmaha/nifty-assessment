@@ -13,7 +13,7 @@ ITEMS_PER_PAGE = 10  # Number of items to display per page
 
 # Create your views here.
 def index(request):
-    managers = Manager.objects.filter(branch__gte=0)
+    managers = Manager.objects.filter(branch__gte=0).distinct()
     branches = Branch.objects.all()
     companies = Company.objects.all()
     transfer_histories = TransferHistory.objects.all()
@@ -140,7 +140,10 @@ def manager_details(request, id):
     transfers = TransferHistory.objects.filter(manager=manager)
     transfer = transfers.latest("transfer_date")
     branch = transfer.to_branch
-    branch.name = branch.name.split(branch.company.name)[1]
+    try:
+        branch.name = branch.name.split(branch.company.name)[1]
+    except:
+        pass
     branch.posted_date = transfer.transfer_date
 
     context = {

@@ -26,7 +26,7 @@ SECRET_KEY = "django-insecure-x-qll6a9x3)vq+tb+kzuz7bmgak(@dccf*+0_%2rbtv^ecr@io
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [".onrender.com", ".vercel.app", "localhost"]
+ALLOWED_HOSTS = [".onrender.com", ".vercel.app", "localhost", "*"]
 
 
 # Application definition
@@ -114,17 +114,6 @@ USE_I18N = True
 
 USE_TZ = False
 
-# __import__("pysqlite3")
-# import sys
-
-# sys.modules["sqlite3"] = sys.modules.pop("pysqlite3")
-
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.sqlite3",
-#         "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
-#     }
-# }
 
 WSGI_APPLICATION = "vercel_app.wsgi.app"
 
