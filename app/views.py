@@ -146,7 +146,7 @@ def manager_details(request, id):
     context = {
         "manager": manager,
         "branch": branch,
-        "transfers": transfers.order_by("-transfer_date"),
+        "transfers_page": transfers.order_by("-transfer_date"),
         "active_tab": "managers",
     }
 
@@ -222,21 +222,21 @@ def paginate_results(request):
     __template_partial = ""
 
     if model.lower() == "managers":
-            __page_obj_name = "managers_page"
-            __template_partial = "manager-list.html"
-            __model = Manager.objects.filter(branch__gte=0)
+        __page_obj_name = "managers_page"
+        __template_partial = "manager-list.html"
+        __model = Manager.objects.filter(branch__gte=0)
     if model.lower() == "branches":
-            __page_obj_name = "branches_page"
-            __template_partial = "branch-list.html"
-            __model = Branch.objects.filter()
+        __page_obj_name = "branches_page"
+        __template_partial = "branch-list.html"
+        __model = Branch.objects.filter()
     if model.lower() == "company":
-            __page_obj_name = "companies_page"
-            __template_partial = "company-list.html"
-            __model = Company.objects.filter()
+        __page_obj_name = "companies_page"
+        __template_partial = "company-list.html"
+        __model = Company.objects.filter()
     if model.lower() == "transfers":
-            __page_obj_name = "transfers_page"
-            __template_partial = "transfer-list.html"
-            __model = TransferHistory.objects.filter()
+        __page_obj_name = "transfers_page"
+        __template_partial = "transfer-list.html"
+        __model = TransferHistory.objects.filter()
 
     if __model:
         page = request.GET.get("page")
