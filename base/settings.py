@@ -114,6 +114,7 @@ USE_I18N = True
 
 USE_TZ = False
 
+WSGI_APPLICATION = "vercel_app.wsgi.app"
 
 STATIC_URL = "static/"
 STATICFILES_DIRS = (os.path.join(BASE_DIR, "app/static/app"),)
