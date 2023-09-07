@@ -5,7 +5,7 @@
   <div class="search-container">
     <form hx-trigger="submit" hx-target="#branchesList" hx-get="{% url 'search_results' %}" style="width:100%; padding-top: 1rem;">
       <input type="search" placeholder="Search a branch..." name="query" class="search-input" />
-      <input type="hidden" name="model" value="branch" />
+      <input type="hidden" name="model" value="branches" />
       <button type="submit" class="search-button">Search</button>
     </form>
   </div>

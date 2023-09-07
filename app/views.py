@@ -174,10 +174,8 @@ def search_results(request):
     elif model.lower() == "branches":
         __page_obj_name = "branches_page"
         __template_partial = "branch-list.html"
-        __model = Manager.objects.filter(
-            Q(first_name__icontains=query)
-            | Q(last_name__istartswith=query)
-            | Q(middle_name__istartswith=query)
+        __model = Branch.orm.filter(
+            Q(name__icontains=query) | Q(company__name__istartswith=query)
         )
     elif model.lower() == "transfer":
         __page_obj_name = "transfers_page"
