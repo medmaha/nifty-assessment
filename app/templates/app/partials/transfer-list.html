@@ -4,7 +4,6 @@
       <th>
         <div class="flex-between">
           <span>Manager</span>
-
         </div>
       </th>
       <th>From</th>
@@ -32,7 +31,7 @@
           <span class="date">{{ transfer.transfer_date|date:'jS M Y' }}</span>
         </td>
         <td>
-          <span class="remarks">{% lorem %}</span>
+          <span class="remarks">{{ transfer.remarks }}</span>
         </td>
       </tr>
     {% endfor %}

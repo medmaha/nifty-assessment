@@ -1,4 +1,4 @@
-import datetime
+from typing import Any
 from django.db import models
 from django.utils.text import slugify
 
@@ -33,6 +33,7 @@ class Manager(models.Model):
     code = models.CharField(max_length=200, default=generate_code)
     gender = models.CharField(default="Male", max_length=20)
     middle_name = models.CharField(max_length=200, default="", blank=True)
+    branch_code = models.CharField(max_length=200, default="", blank=True)
 
     @property
     def name(self):
@@ -63,13 +64,21 @@ class Region(models.Model):
         return self.name.upper()
 
 
+class BranchManager(models.Manager):
+    def filter(self, *args, **kwargs):
+        qs = super().filter(~models.Q(manager=None), *args, **kwargs)
+        return qs
+
+
 class Branch(models.Model):
     name = models.CharField(max_length=200)
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
     code = models.CharField(max_length=200, default=generate_code)
     region = models.ForeignKey(Region, null=True, on_delete=models.SET_NULL)
     manager = models.ForeignKey(Manager, null=True, on_delete=models.SET_NULL)
-    posted_date = models.DateField(auto_now_add=True, null=True)
+    posted_date = models.DateField(null=True)
+
+    orm = BranchManager()
 
     class Meta:
         verbose_name_plural = "Branches"
@@ -87,7 +96,7 @@ class TransferHistory(models.Model):
     from_branch = models.ForeignKey(
         Branch, on_delete=models.SET_NULL, null=True, related_name="manager_from"
     )
-    posting_date = models.DateTimeField(auto_now_add=True)
+    posting_date = models.DateTimeField()
     transfer_date = models.DateTimeField()
     remarks = models.TextField(default="")
 
@@ -96,21 +105,3 @@ class TransferHistory(models.Model):
 
     def __str__(self) -> str:
         return self.manager.name + " --> " + self.to_branch.name
-
-    def save(self, *args, **kwargs):
-        if not self.pk:
-            if self.to_branch.manager and not self.to_branch.manager == self.manager:
-                self.from_branch.manager = self.to_branch.manager
-
-            elif not self.to_branch.manager:
-                self.to_branch.manager = self.manager
-
-            elif not self.to_branch.manager == self.manager:
-                self.to_branch.manager = self.manager
-
-            self.posted_date = self.from_branch.posted_date
-
-            self.to_branch.save()
-            self.manager.save()
-
-        return super().save(*args, **kwargs)

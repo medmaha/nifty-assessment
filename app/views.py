@@ -13,8 +13,8 @@ ITEMS_PER_PAGE = 10  # Number of items to display per page
 
 # Create your views here.
 def index(request):
-    managers = Manager.objects.filter(branch__gte=0).distinct()
-    branches = Branch.objects.all()
+    managers = Manager.objects.filter(branch__gt=0)
+    branches = Branch.orm.filter()
     companies = Company.objects.all()
     transfer_histories = TransferHistory.objects.all()
     queries = query_params(request.get_full_path())
@@ -29,16 +29,14 @@ def index(request):
             manager_gender = "female"
             managers = managers.filter(gender__iexact="female")
 
-    m_paginator = Paginator(managers, ITEMS_PER_PAGE)
     page = request.GET.get("page")
+    m_paginator = Paginator(managers, ITEMS_PER_PAGE)
     m_page = m_paginator.get_page(page)
 
     b_paginator = Paginator(branches, ITEMS_PER_PAGE)
-    page = request.GET.get("page")
     b_page = b_paginator.get_page(page)
 
     c_paginator = Paginator(companies, ITEMS_PER_PAGE)
-    page = request.GET.get("page")
     c_page = c_paginator.get_page(page)
 
     context = {
@@ -91,7 +89,7 @@ def managers(request):
 
 
 def branches(request):
-    _branches = Branch.objects.filter()
+    _branches = Branch.orm.filter()
 
     page = request.GET.get("page")
     paginator = Paginator(_branches, ITEMS_PER_PAGE)
@@ -117,7 +115,7 @@ def transfer_histories(request):
 
 def company_details(request, id):
     company = Company.objects.filter(id=id).first()
-    branches = Branch.objects.filter(company=company)
+    branches = Branch.orm.filter(company=company)
     managers = Manager.objects.filter(branch__in=branches)
 
     page = request.GET.get("page")
@@ -138,20 +136,7 @@ def manager_details(request, id):
     manager = Manager.objects.filter(id=id).first()
     transfers = TransferHistory.objects.filter(manager=manager)
 
-    if transfers:
-        transfer = transfers.latest("transfer_date")
-        branch = transfer.to_branch
-        branch.posted_date = transfer.transfer_date
-    else:
-        branch = (
-            Branch.objects.filter(manager=manager)
-            or TransferHistory.objects.filter(to_branch__manager=manager)
-            or TransferHistory.objects.filter(from_branch__manager=manager)
-        )
-    try:
-        branch.name = branch.name.split(branch.company.name)[1]
-    except:
-        pass
+    branch = Branch.orm.filter(code=manager.branch_code).first()
 
     context = {
         "manager": manager,
@@ -183,8 +168,9 @@ def search_results(request):
         __model = Manager.objects.filter(
             Q(first_name__icontains=query)
             | Q(last_name__istartswith=query)
-            | Q(middle_name__istartswith=query)
-        )
+            | Q(middle_name__istartswith=query),
+            branch__gt=0,
+        ).distinct()
     elif model.lower() == "branches":
         __page_obj_name = "branches_page"
         __template_partial = "branch-list.html"
@@ -238,7 +224,7 @@ def paginate_results(request):
     if model.lower() == "branches":
         __page_obj_name = "branches_page"
         __template_partial = "branch-list.html"
-        __model = Branch.objects.filter()
+        __model = Branch.orm.filter()
     if model.lower() == "company":
         __page_obj_name = "companies_page"
         __template_partial = "company-list.html"
