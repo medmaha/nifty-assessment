@@ -189,7 +189,7 @@ tr .date {
 
 tr .remarks {
     display: inline-block;
-    max-width: 40ch;
+    max-width: 35ch;
     overflow: hidden;
     display: -webkit-box;
     -webkit-box-orient: vertical;

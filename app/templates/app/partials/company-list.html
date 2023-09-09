@@ -13,7 +13,7 @@
       <tr>
         <td>
           {# prettier-ignore #}
-          <a class="table-link" href="{% url 'company_details' id=company.id %}">{{ company.name }}</a>
+          <a class="table-link"  href="{{company.abs_path}}">{{ company.name }}</a>
         </td>
         <td>{{ company.town }}</td>
         <td>{{ company.phone_number }}</td>
@@ -29,20 +29,23 @@
 {% endif %}
 
 {% if companies_page.has_previous or companies_page.has_next %}
-  <div class="pagination">
-    <span class="step-links">
-      {% if companies_page.has_previous %}
-        {% if companies_page.number > 2 %}
-          <a hx-target="#companyList" hx-trigger="click" hx-get="paginate?m=company&page=1">&laquo; First Page</a>
+  <div style="display:flex;align-items: center;justify-content: space-between; width:100%">
+    <p>Total: {{ companies_page.paginator.count }}</p>
+    <div class="pagination">
+      <span class="step-links">
+        {% if companies_page.has_previous %}
+          {% if companies_page.number > 2 %}
+            <a hx-target="#companyList" hx-trigger="click" hx-get="paginate?m=company&page=1">&laquo; First Page</a>
+          {% endif %}
+          <a hx-target="#companyList" hx-trigger="click" hx-get="paginate?m=company&page={{ companies_page.previous_page_number }}">Prev</a>
         {% endif %}
-        <a hx-target="#companyList" hx-trigger="click" hx-get="paginate?m=company&page={{ companies_page.previous_page_number }}">Prev</a>
-      {% endif %}
 
-      {% if companies_page.has_next %}
-        <a hx-target="#companyList" hx-trigger="click" hx-get="paginate?m=company&page={{ companies_page.next_page_number }}">Next</a>
-        <a hx-target="#companyList" hx-trigger="click" hx-get="paginate?m=company&page={{ companies_page.paginator.num_pages }}">Last Page &raquo;</a>
-      {% endif %}
-    </span>
-    <span class="current-page">Page {{ companies_page.number }} of {{ companies_page.paginator.num_pages }}.</span>
+        {% if companies_page.has_next %}
+          <a hx-target="#companyList" hx-trigger="click" hx-get="paginate?m=company&page={{ companies_page.next_page_number }}">Next</a>
+          <a hx-target="#companyList" hx-trigger="click" hx-get="paginate?m=company&page={{ companies_page.paginator.num_pages }}">Last Page &raquo;</a>
+        {% endif %}
+      </span>
+      <span class="current-page">Page {{ companies_page.number }} of {{ companies_page.paginator.num_pages }}.</span>
+    </div>
   </div>
 {% endif %}

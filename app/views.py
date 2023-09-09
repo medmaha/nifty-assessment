@@ -1,5 +1,5 @@
 from datetime import datetime
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Paginator
 from django.db.models import Q
 
@@ -8,42 +8,46 @@ from .utilities import query_params
 from .models import Branch, Company, Manager, TransferHistory
 
 
-ITEMS_PER_PAGE = 10  # Number of items to display per page
+ITEMS_PER_PAGE = 10  # Number of items to displayed per paginated-queryset
 
 
-# Create your views here.
+# ? Homepage
 def index(request):
+    branches = Branch.objects.filter()
+    companies = Company.objects.filter()
+    transfers = TransferHistory.objects.filter()
     managers = Manager.objects.filter(branch__gt=0)
-    branches = Branch.orm.filter()
-    companies = Company.objects.all()
-    transfer_histories = TransferHistory.objects.all()
-    queries = query_params(request.get_full_path())
 
     manager_gender = "all"
+    queries = query_params(request.get_full_path())
 
     if queries.get("m-gender"):
         if "male" == queries["m-gender"]:
             manager_gender = "male"
-            managers = managers.filter(gender__iexact="male")
+            managers = managers.filter(gender__iexact="male").order_by("id")
         if "female" == queries["m-gender"]:
             manager_gender = "female"
-            managers = managers.filter(gender__iexact="female")
+            managers = managers.filter(gender__iexact="female").order_by("id")
 
     page = request.GET.get("page")
-    m_paginator = Paginator(managers, ITEMS_PER_PAGE)
-    m_page = m_paginator.get_page(page)
-
-    b_paginator = Paginator(branches, ITEMS_PER_PAGE)
-    b_page = b_paginator.get_page(page)
-
-    c_paginator = Paginator(companies, ITEMS_PER_PAGE)
-    c_page = c_paginator.get_page(page)
+    companies_paginator = Paginator(companies.order_by("id"), ITEMS_PER_PAGE).get_page(
+        page
+    )
+    branches_paginator = Paginator(branches.order_by("id"), ITEMS_PER_PAGE).get_page(
+        page
+    )
+    managers_paginator = Paginator(managers.order_by("id"), ITEMS_PER_PAGE).get_page(
+        page
+    )
+    transfers_paginator = Paginator(transfers.order_by("id"), ITEMS_PER_PAGE).get_page(
+        page
+    )
 
     context = {
-        "managers_page": m_page,
-        "branches_page": b_page,
-        "companies_page": c_page,
-        "transfers": transfer_histories,
+        "managers_page": managers_paginator,
+        "branches_page": branches_paginator,
+        "companies_page": companies_paginator,
+        "transfers_page": transfers_paginator,
         "gender": manager_gender,
         "active_tab": "home",
     }
@@ -51,8 +55,9 @@ def index(request):
     return render(request, "app/index.html", context)
 
 
+# ? Companies listing page
 def companies(request):
-    _companies = Company.objects.all()
+    _companies = Company.objects.all().order_by("id")
 
     c_paginator = Paginator(_companies, ITEMS_PER_PAGE)
     page = request.GET.get("page")
@@ -63,8 +68,9 @@ def companies(request):
     return render(request, "app/companies.html", context)
 
 
+# ? Managers listing page
 def managers(request):
-    _managers = Manager.objects.filter(branch__gte=0)
+    _managers = Manager.objects.filter(branch__gte=0).order_by("id")
     gender = "all"
 
     if request.GET.get("m-gender"):
@@ -88,8 +94,9 @@ def managers(request):
     return render(request, "app/managers.html", context)
 
 
+# ? Branches listing page
 def branches(request):
-    _branches = Branch.orm.filter()
+    _branches = Branch.objects.filter().order_by("id")
 
     page = request.GET.get("page")
     paginator = Paginator(_branches, ITEMS_PER_PAGE)
@@ -102,41 +109,58 @@ def branches(request):
     return render(request, "app/branches.html", context)
 
 
+# ? Transfer histories listing page
 def transfer_histories(request):
+    # Retrieve all transfer histories
     transfers = TransferHistory.objects.all()
 
+    # Pagination for transfer history
     page = request.GET.get("page")
-    paginator = Paginator(transfers, ITEMS_PER_PAGE)
-    transfers_page = paginator.get_page(page)
 
-    context = {"active_tab": "transfers", "transfers_page": transfers_page}
+    transfers_paginator = Paginator(transfers.order_by("id"), ITEMS_PER_PAGE).get_page(
+        page
+    )
+
+    context = {"active_tab": "transfers", "transfers_page": transfers_paginator}
+
+    # Render the view template
     return render(request, "app/transfer-histories.html", context)
 
 
+# ? Company Details page
 def company_details(request, id):
-    company = Company.objects.filter(id=id).first()
-    branches = Branch.orm.filter(company=company)
-    managers = Manager.objects.filter(branch__in=branches)
+    # Retrieve the company or return a 404 if not found
+    company = get_object_or_404(Company, id=id)
 
+    # Retrieve the branches associated with the company
+    branches = Branch.objects.filter(company=company).order_by("id")
+
+    # Retrieve managers associated with those branches
+    managers = Manager.objects.filter(
+        branch_code__in=branches.values_list("code"), branch__company=company
+    ).order_by("id")
+
+    # Pagination for branches and managers
     page = request.GET.get("page")
-    b_paginator = Paginator(branches, ITEMS_PER_PAGE).get_page(page)
-    m_paginator = Paginator(managers, ITEMS_PER_PAGE).get_page(page)
+    branches_paginator = Paginator(branches, ITEMS_PER_PAGE).get_page(page)
+    managers_paginator = Paginator(managers, ITEMS_PER_PAGE).get_page(page)
 
     context = {
         "company": company,
-        "branches_page": b_paginator,
-        "managers_page": m_paginator,
+        "branches_page": branches_paginator,
+        "managers_page": managers_paginator,
         "active_tab": "companies",
     }
 
     return render(request, "app/company-details.html", context)
 
 
+# ? Manager Details page
 def manager_details(request, id):
-    manager = Manager.objects.filter(id=id).first()
-    transfers = TransferHistory.objects.filter(manager=manager)
+    manager = get_object_or_404(Manager, id=id)
+    transfers = TransferHistory.objects.filter(manager=manager).order_by("id")
 
-    branch = Branch.orm.filter(code=manager.branch_code).first()
+    branch = Branch.objects.filter(code=manager.branch_code).first()
 
     context = {
         "manager": manager,
@@ -174,7 +198,7 @@ def search_results(request):
     elif model.lower() == "branches":
         __page_obj_name = "branches_page"
         __template_partial = "branch-list.html"
-        __model = Branch.orm.filter(
+        __model = Branch.objects.filter(
             Q(name__icontains=query) | Q(company__name__istartswith=query)
         )
     elif model.lower() == "transfer":
@@ -195,7 +219,7 @@ def search_results(request):
         )
     if __model:
         page = request.GET.get("page")
-        paginator = Paginator(__model, ITEMS_PER_PAGE)
+        paginator = Paginator(__model.order_by("id"), ITEMS_PER_PAGE)
         paginator_page = paginator.get_page(page)
 
         context = {
@@ -218,11 +242,11 @@ def paginate_results(request):
     if model.lower() == "managers":
         __page_obj_name = "managers_page"
         __template_partial = "manager-list.html"
-        __model = Manager.objects.filter(branch__gte=0)
+        __model = Manager.objects.filter(branch__gt=0)
     if model.lower() == "branches":
         __page_obj_name = "branches_page"
         __template_partial = "branch-list.html"
-        __model = Branch.orm.filter()
+        __model = Branch.objects.filter()
     if model.lower() == "company":
         __page_obj_name = "companies_page"
         __template_partial = "company-list.html"
@@ -234,7 +258,7 @@ def paginate_results(request):
 
     if __model:
         page = request.GET.get("page")
-        paginator = Paginator(__model, ITEMS_PER_PAGE)
+        paginator = Paginator(__model.order_by("id"), ITEMS_PER_PAGE)
         paginator_page = paginator.get_page(page)
 
         context = {

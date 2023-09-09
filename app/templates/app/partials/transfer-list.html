@@ -8,6 +8,7 @@
       </th>
       <th>From</th>
       <th>To</th>
+      <th>Company</th>
       <th>
         <div class="flex-between">
           <span>Transfer Date</span>
@@ -21,17 +22,24 @@
       <tr>
         <td>
           {# prettier-ignore #}
-          <a href="{% url 'manager_details' transfer.manager.id %}" class="table-link">
+          <a href="{{transfer.manager.abs_path}}" class="table-link" style="displpay:inline-block; width:max-content;">
             {{ transfer.manager.name }}
           </a>
         </td>
-        <td>{{ transfer.from_branch.name }}</td>
-        <td>{{ transfer.to_branch.name }}</td>
+        <td>
+          <span class="remarks">{{ transfer.from_branch.name }}</span>
+        </td>
+        <td>
+          <span class="remarks">{{ transfer.to_branch.name }}</span>
+        </td>
+        <td>
+          <span class="remarks">{{ transfer.to_branch.company.name }}</span>
+        </td>
         <td>
           <span class="date">{{ transfer.transfer_date|date:'jS M Y' }}</span>
         </td>
         <td>
-          <span class="remarks">{{ transfer.remarks }}</span>
+          <span class="remarks" style="font-size:12px">{{ transfer.remarks }}</span>
         </td>
       </tr>
     {% endfor %}
@@ -42,20 +50,23 @@
 {% endif %}
 
 {% if transfers_page.has_previous or transfers_page.has_next %}
-  <div class="pagination">
-    <span class="step-links">
-      {% if transfers_page.has_previous %}
-        {% if transfers_page.number > 2 %}
-          <a hx-target="#transfersList" hx-trigger="click" hx-get="/paginate?m=transfers&page=1">&laquo; First Page</a>
+  <div style="display:flex;align-items: center;justify-content: space-between; width:100%">
+    <p>Total: {{ transfers_page.paginator.count }}</p>
+    <div class="pagination">
+      <span class="step-links">
+        {% if transfers_page.has_previous %}
+          {% if transfers_page.number > 2 %}
+            <a hx-target="#transfersList" hx-trigger="click" hx-get="/paginate?m=transfers&page=1">&laquo; First Page</a>
+          {% endif %}
+          <a hx-target="#transfersList" hx-trigger="click" hx-get="/paginate?m=transfers&page={{ transfers_page.previous_page_number }}">Prev</a>
         {% endif %}
-        <a hx-target="#transfersList" hx-trigger="click" hx-get="/paginate?m=transfers&page={{ transfers_page.previous_page_number }}">Prev</a>
-      {% endif %}
 
-      {% if transfers_page.has_next %}
-        <a hx-target="#transfersList" hx-trigger="click" hx-get="/paginate?m=transfers&page={{ transfers_page.next_page_number }}">Next</a>
-        <a hx-target="#transfersList" hx-trigger="click" hx-get="/paginate?m=transfers&page={{ transfers_page.paginator.num_pages }}">Last Page &raquo;</a>
-      {% endif %}
-    </span>
-    <span class="current-page">Page {{ transfers_page.number }} of {{ transfers_page.paginator.num_pages }}.</span>
+        {% if transfers_page.has_next %}
+          <a hx-target="#transfersList" hx-trigger="click" hx-get="/paginate?m=transfers&page={{ transfers_page.next_page_number }}">Next</a>
+          <a hx-target="#transfersList" hx-trigger="click" hx-get="/paginate?m=transfers&page={{ transfers_page.paginator.num_pages }}">Last Page &raquo;</a>
+        {% endif %}
+      </span>
+      <span class="current-page">Page {{ transfers_page.number }} of {{ transfers_page.paginator.num_pages }}.</span>
+    </div>
   </div>
 {% endif %}

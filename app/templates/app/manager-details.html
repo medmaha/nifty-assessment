@@ -68,7 +68,12 @@
       </thead>
       <tbody>
         <td>{{ branch.name }}</td>
-        <td>{{ branch.company.name }}</td>
+        <td>
+          {# prettier-ignore #}
+          <a class="table-link" href="{% url 'company_details' branch.company.id %}">
+            {{ branch.company.name }}
+          </a>
+        </td>
         <td>{{ branch.region.name.upper }}</td>
         <td>
           <span class="date">{{ branch.manager.phone }}</span>
@@ -87,14 +92,13 @@
             padding: 1rem 0;
         ">
       <h3>Transfer Histories</h3>
-      <!--           <form method="get" style="margin-top: 1rem">
+      <!--             <form method="get" style="margin-top: 1rem">
             <label for="transfer_date">Filter by Transfer Date:</label>
             <input type="date" name="transfer_date" id="transfer_date" />
             <button type="submit">Filter</button>
-        </form>           -->
+        </form>             -->
     </div>
 
- 
     <!--  -->
     <div id="transfersList">
       {% include 'app/partials/transfer-list.html' %}

@@ -44,6 +44,7 @@ nav {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 1.5rem;
     background-color: var(--bg-color);
     padding: 1rem;
 }
@@ -53,14 +54,25 @@ nav h2 {
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    padding-right: 1rem;
+}
+
+@media (max-width:600px) {
+    nav h2 {
+        font-size: 18px;
+    }
+
+    nav ul li a {
+        font-size: 12px;
+    }
 }
 
 nav ul {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
+    align-items: flex-center;
+    justify-content: flex-end;
     list-style-type: none;
+    flex-wrap: wrap;
+    gap: 5px;
 }
 
 nav ul li {
@@ -177,7 +189,7 @@ tr .date {
 
 tr .remarks {
     display: inline-block;
-    max-width: 40ch;
+    max-width: 35ch;
     overflow: hidden;
     display: -webkit-box;
     -webkit-box-orient: vertical;

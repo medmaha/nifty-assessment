@@ -1,5 +1,6 @@
 from typing import Any
 from django.db import models
+from django.urls import reverse
 from django.utils.text import slugify
 
 
@@ -23,6 +24,10 @@ class Company(models.Model):
     def __str__(self):
         return self.name
 
+    @property
+    def abs_path(self):
+        return reverse("company_details", args=(str(self.pk),))
+
 
 class Manager(models.Model):
     email = models.EmailField(max_length=200)
@@ -40,8 +45,18 @@ class Manager(models.Model):
         return f"{self.first_name} {self.middle_name} {self.last_name}"
 
     @property
-    def get_branch(self):
-        return self.branch_set.filter().last()
+    def company(self):
+        if self.branch:
+            return self.branch.company
+
+    @property
+    def branch(self):
+        _b = Branch.objects.filter(manager=self, code=self.branch_code).first()
+        return _b
+
+    @property
+    def abs_path(self):
+        return reverse("manager_details", args=(str(self.pk),))
 
     def __str__(self):
         return self.name
@@ -66,8 +81,14 @@ class Region(models.Model):
 
 class BranchManager(models.Manager):
     def filter(self, *args, **kwargs):
-        qs = super().filter(~models.Q(manager=None), *args, **kwargs)
-        return qs
+        return (
+            super()
+            .filter(*args, **kwargs)
+            .exclude(models.Q(manager=None) | models.Q(company=None))
+        )
+
+    def all(self):
+        return super().all().exclude(models.Q(manager=None) | models.Q(company=None))
 
 
 class Branch(models.Model):
@@ -78,7 +99,7 @@ class Branch(models.Model):
     manager = models.ForeignKey(Manager, null=True, on_delete=models.SET_NULL)
     posted_date = models.DateField(null=True)
 
-    orm = BranchManager()
+    objects = BranchManager()
 
     class Meta:
         verbose_name_plural = "Branches"
@@ -102,6 +123,10 @@ class TransferHistory(models.Model):
 
     class Meta:
         verbose_name_plural = "TransferHistories"
+
+    @property
+    def abs_path(self):
+        return reverse("manager_details", args=(str(self.pk),))
 
     def __str__(self) -> str:
         return self.manager.name + " --> " + self.to_branch.name

@@ -1,6 +1,6 @@
 import random
 
-from datetime import datetime, timedelta
+from datetime import datetime
 from django.db import transaction
 
 from .models import Manager, Branch, TransferHistory, Company, Region
@@ -15,45 +15,35 @@ def generate_transfers():
 
     FROM_BRANCHES = []
 
-    for manager in Manager.objects.filter(branch__gt=0):
-        from_branch = random.choice(
-            Branch.objects.filter(manager=manager).exclude(code__in=FROM_BRANCHES)
-        )
-        if not from_branch:
-            continue
-
+    _managers = Manager.objects.filter()
+    for manager in _managers:
+        from_branch: Branch = random.choice(Branch.objects.filter())
         branch = random.choice(Branch.objects.filter(~Q(manager=manager)))
 
         if not branch:
             continue
 
+        if branch.manager == manager:
+            continue
+
         to_branch = Branch()
-        to_branch.name = branch.name
+        _coord = random.choice([" west ", " east ", " north ", " south", " ", " ", " "])
+
+        to_branch.name = (
+            f"{random.choice(gambian_locations)}{_coord}Branch {random.randrange(1, 3)}"
+        )
         to_branch.company = branch.company
         to_branch.manager = manager
         to_branch.posted_date = branch.posted_date
         to_branch.region = branch.region
 
+        from_branch.manager = manager
         from_branch.save()
 
         # Generate a random transfer_date greater than from_branch's posting_date
-        from_branch_posting_date = from_branch.posted_date
+        year = from_branch.posted_date.year
 
-        def generate_transfer_date(index=3):
-            year = from_branch_posting_date.year + random.randrange(1, 5)
-
-            if year > 2022:
-                if not index:
-                    return
-                return generate_transfer_date(index - 1)
-
-            month = random.randrange(1, 12)
-            day = random.randrange(1, 25)
-            transfer_date = datetime(year, month, day)
-
-            return transfer_date
-
-        transfer_date = generate_transfer_date()
+        transfer_date = create_transfer_date(year)
         if not transfer_date:
             continue
 
@@ -68,25 +58,7 @@ def generate_transfers():
         manager.branch_code = to_branch.code
         manager.save()
 
-        def generate_random_remarks(from_branch, to_branch):
-            # List of possible transfer reasons or remarks
-            transfer_reasons = [
-                f"The manager has been transferred from {from_branch} to {to_branch}.",
-                f"The manager's relocation: {from_branch} to {to_branch}.",
-                f"Change of branch assignment: {from_branch} to {to_branch}.",
-                f"Promotion to {to_branch}: {from_branch} to {to_branch}.",
-                "Internal Transfer within the organization.",
-                "Managerial Change due to strategic reasons.",
-                "Branch Shift for operational purposes.",
-                "Departmental Rotation for career development.",
-            ]
-
-            # Select a random remark from the list
-            random_remark = random.choice(transfer_reasons)
-
-            return random_remark
-
-        remarks = generate_random_remarks(from_branch, to_branch)
+        remarks = create_random_remarks(from_branch, to_branch)
 
         transfer_history_data = TransferHistory(
             manager=manager,
@@ -101,8 +73,8 @@ def generate_transfers():
 
     # Use a transaction to create and save the TransferHistory records in bulk
     with transaction.atomic():
-        TransferHistory.objects.bulk_create(transfer_histories)
-        print("[Done] --> Transfer History")
+        t = TransferHistory.objects.bulk_create(transfer_histories)
+        print("[Done] --> Transfer History", len(t))
 
 
 def generate_branches():
@@ -123,12 +95,10 @@ def generate_branches():
             branch.name = (
                 f"{company_location}{random.choice(coords)}Branch {_ + 1}".capitalize()
             )
-            branch.company = Company.objects.order_by("?").first()
+            branch.company = random.choice(Company.objects.all())
             branch.region, _ = Region.objects.get_or_create(name=company_info["region"])
             branch.manager = Manager.objects.order_by("?").first()
-            branch.posted_date = mutate_time()
-
-            print(branch.posted_date)
+            branch.posted_date = create_random_datetime()
 
             branch.save()
             branch.manager.branch_code = branch.code
@@ -149,7 +119,7 @@ def generate_managers():
 
         _manager.first_name = name
         _manager.last_name = surname
-        _manager.phone = g_phone()
+        _manager.phone = random_phone_number()
         _manager.gender = gender
         _manager.email = (name + surname + "@gmail.com").lower()
         managers.append(_manager)
@@ -168,7 +138,7 @@ def generate_companies():
         _company.town = random.choice(gambian_locations)
         _company.street_name = company["street_name"]
         _company.street_number = company["street_number"]
-        _company.phone_number = g_phone()
+        _company.phone_number = random_phone_number()
         _company.region = Region.objects.get_or_create(name=company["region"])[0]
 
         companies.append(_company)
@@ -178,7 +148,7 @@ def generate_companies():
         print("[Done] --> Companies")
 
 
-def g_phone():
+def random_phone_number():
     double = False
 
     def make():
@@ -193,12 +163,140 @@ def g_phone():
     return make()
 
 
-def mutate_time():
+def create_random_datetime():
     year = 1998 + random.randrange(1, 17)
     month = 0 + random.randrange(1, 10)
     day = 0 + random.randrange(2, 25)
+
     date = datetime(year, month, day)
     return date
+
+
+def create_transfer_date(from_year, index=3):
+    year = from_year + random.randrange(1, 5)
+
+    if year > 2022:
+        if not index:
+            return
+        return create_transfer_date(index - 1)
+
+    month = random.randrange(1, 12)
+    day = random.randrange(1, 25)
+    transfer_date = datetime(year, month, day)
+
+    return transfer_date
+
+
+def create_random_remarks(from_branch, to_branch):
+    # List of possible transfer reasons or remarks
+    transfer_reasons = [
+        f"The manager has been transferred from {from_branch} to {to_branch}.",
+        f"The manager's relocation: {from_branch} to {to_branch}.",
+        f"Change of branch assignment: {from_branch} to {to_branch}.",
+        f"Promotion to {to_branch}: {from_branch} to {to_branch}.",
+        "Internal Transfer within the organization.",
+        "Managerial Change due to strategic reasons.",
+        "Branch Shift for operational purposes.",
+        "Departmental Rotation for career development.",
+    ]
+
+    # Select a random remark from the list
+    random_remark = random.choice(transfer_reasons)
+
+    return random_remark
+
+
+def random_managers_mixed():
+    managers = []
+    first_names = []
+    last_names = []
+    for person in manager_names:
+        try:
+            name, surname, middle, gender = person.split(" ")
+            _g = Manager.objects.filter(first_name=name).first()
+            if _g:
+                gender = _g.gender
+            last_names.append((middle, surname, gender))
+        except:
+            name, surname, gender = person.split(" ")
+            _g = Manager.objects.filter(first_name=name).first()
+            if _g:
+                gender = _g.gender
+            last_names.append((None, surname, gender))
+
+        first_names.append(name)
+
+    random.shuffle(first_names)
+    random.shuffle(last_names)
+
+    zip_mapped = zip(first_names, last_names)
+
+    for first_name, data in zip_mapped:
+        middle_name, last_name, _gender = data
+        _manager = Manager()
+        _manager.first_name = first_name
+        _manager.last_name = last_name
+        _manager.middle_name = middle_name or ""
+        _manager.phone = random_phone_number()
+        _manager.gender = _gender
+        _manager.email = (first_name + last_name + "@gmail.com").lower()
+        # _manager.save()
+        _manager.save()
+        managers.append(_manager)
+
+    print("[Done] Managers mixed -", len(managers))
+
+    return managers
+
+
+class Automation:
+    def __init__(self):
+        pass
+
+    def initialize_db(self):
+        self.reset_db()
+        generate_companies()
+
+        generate_managers()
+        random_managers_mixed()
+
+        generate_branches()
+        generate_transfers()
+
+        generate_transfers()
+        generate_transfers()
+        random_managers_mixed()
+        generate_branches()
+
+        generate_transfers()
+        generate_transfers()
+        self.dispatch_branches()
+
+    def reset_db(self):
+        Company.objects.filter().delete()
+        Manager.objects.filter().delete()
+        TransferHistory.objects.filter().delete()
+        Branch.objects.filter().delete()
+
+    def dispatch_branches(self):
+        branches = Branch.objects.filter(manager_id=None)
+        if branches.count() < 1:
+            return
+
+        managers = Manager.objects.filter(~Q(branch=None) | ~Q(branch_code=""))
+
+        if managers.count() < 1:
+            managers = random_managers_mixed()  # create 25 new random managers
+
+        for branch, manager in zip(branches, managers):
+            branch.manager = manager
+            manager.branch_code = branch.code
+
+            manager.save()
+            branch.save()
+
+        if (branches.count() - managers.count()) > 0:
+            self.dispatch_branches()
 
 
 manager_names = [
@@ -340,22 +438,3 @@ high_profile_companies = [
         "region": "BJL",
     },
 ]
-
-
-# for branch in Branch.objects.all():
-#     company_name = branch.name.split(" Branch")[0]
-#     company = Company.objects.filter(name__icontains=company_name).first()
-#     branch.company = company
-#     branch.save()
-
-
-# Company.objects.filter().delete()
-# Manager.objects.filter().delete()
-# TransferHistory.objects.filter().delete()
-# Branch.objects.filter().delete()
-
-# generate_companies()
-# generate_managers()
-# generate_branches()
-# generate_transfers()
-# generate_transfers()
