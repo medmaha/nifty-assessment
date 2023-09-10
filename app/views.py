@@ -13,10 +13,10 @@ ITEMS_PER_PAGE = 10  # Number of items to displayed per paginated-queryset
 
 # ? Homepage
 def index(request):
-    branches = Branch.objects.filter()
     companies = Company.objects.filter()
-    transfers = TransferHistory.objects.filter()
-    managers = Manager.objects.filter(branch__gt=0)
+    branches = Branch.objects.filter().distinct()
+    transfers = TransferHistory.objects.filter().distinct()
+    managers = Manager.objects.filter(branch__gt=0).distinct()
 
     manager_gender = "all"
     queries = query_params(request.get_full_path())
@@ -70,7 +70,7 @@ def companies(request):
 
 # ? Managers listing page
 def managers(request):
-    _managers = Manager.objects.filter(branch__gte=0).order_by("id")
+    _managers = Manager.objects.filter(branch__gte=0).distinct()
     gender = "all"
 
     if request.GET.get("m-gender"):
@@ -83,7 +83,7 @@ def managers(request):
             _managers = _managers.filter(gender__iexact="female")
 
     page = request.GET.get("page")
-    paginator = Paginator(_managers, ITEMS_PER_PAGE)
+    paginator = Paginator(_managers.order_by("id"), ITEMS_PER_PAGE)
     managers_page = paginator.get_page(page)
 
     context = {
@@ -96,7 +96,7 @@ def managers(request):
 
 # ? Branches listing page
 def branches(request):
-    _branches = Branch.objects.filter().order_by("id")
+    _branches = Branch.objects.filter().order_by("id").distinct()
 
     page = request.GET.get("page")
     paginator = Paginator(_branches, ITEMS_PER_PAGE)
@@ -112,7 +112,7 @@ def branches(request):
 # ? Transfer histories listing page
 def transfer_histories(request):
     # Retrieve all transfer histories
-    transfers = TransferHistory.objects.all()
+    transfers = TransferHistory.objects.all().distinct()
 
     # Pagination for transfer history
     page = request.GET.get("page")
@@ -133,12 +133,16 @@ def company_details(request, id):
     company = get_object_or_404(Company, id=id)
 
     # Retrieve the branches associated with the company
-    branches = Branch.objects.filter(company=company).order_by("id")
+    branches = Branch.objects.filter(company=company).order_by("id").distinct()
 
     # Retrieve managers associated with those branches
-    managers = Manager.objects.filter(
-        branch_code__in=branches.values_list("code"), branch__company=company
-    ).order_by("id")
+    managers = (
+        Manager.objects.filter(
+            branch_code__in=branches.values_list("code"), branch__company=company
+        )
+        .order_by("id")
+        .distinct()
+    )
 
     # Pagination for branches and managers
     page = request.GET.get("page")
@@ -160,11 +164,9 @@ def manager_details(request, id):
     manager = get_object_or_404(Manager, id=id)
     transfers = TransferHistory.objects.filter(manager=manager).order_by("id")
 
-    branch = Branch.objects.filter(code=manager.branch_code).first()
-
     context = {
         "manager": manager,
-        "branch": branch,
+        "branch": manager.branch,
         "transfers_page": transfers.distinct().order_by("-transfer_date"),
         "active_tab": "managers",
     }

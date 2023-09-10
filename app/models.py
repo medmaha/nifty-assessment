@@ -51,8 +51,15 @@ class Manager(models.Model):
 
     @property
     def branch(self):
-        _b = Branch.objects.filter(manager=self, code=self.branch_code).first()
-        return _b
+        if self.branch_code:
+            t = (
+                TransferHistory.objects.filter(manager=self)
+                .order_by("-transfer_date")
+                .first()
+            )
+            if t:
+                return t.to_branch
+        return Branch.objects.filter(manager=self).latest("-posted-date")
 
     @property
     def abs_path(self):

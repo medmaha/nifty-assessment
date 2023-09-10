@@ -240,7 +240,6 @@ def random_managers_mixed():
         _manager.phone = random_phone_number()
         _manager.gender = _gender
         _manager.email = (first_name + last_name + "@gmail.com").lower()
-        # _manager.save()
         _manager.save()
         managers.append(_manager)
 
@@ -265,11 +264,7 @@ class Automation:
 
         generate_transfers()
         generate_transfers()
-        random_managers_mixed()
-        generate_branches()
 
-        generate_transfers()
-        generate_transfers()
         self.dispatch_branches()
 
     def reset_db(self):
@@ -278,25 +273,31 @@ class Automation:
         TransferHistory.objects.filter().delete()
         Branch.objects.filter().delete()
 
-    def dispatch_branches(self):
-        branches = Branch.objects.filter(manager_id=None)
+    def dispatch_branches(self, index=3):
+        if not index:
+            return
+
+        branches = Branch.objects.get_queryset().filter(manager=None)
         if branches.count() < 1:
             return
 
-        managers = Manager.objects.filter(~Q(branch=None) | ~Q(branch_code=""))
-
+        managers = Manager.objects.filter(branch=None, branch_code__in=["", None])
         if managers.count() < 1:
             managers = random_managers_mixed()  # create 25 new random managers
 
         for branch, manager in zip(branches, managers):
+            if manager.branch and manager.branch_code:
+                print("[Error]")
+                continue
+
             branch.manager = manager
             manager.branch_code = branch.code
 
             manager.save()
             branch.save()
 
-        if (branches.count() - managers.count()) > 0:
-            self.dispatch_branches()
+        if (branches.count() - len(managers)) > 0:
+            self.dispatch_branches(index - 1)
 
 
 manager_names = [

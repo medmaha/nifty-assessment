@@ -18,25 +18,15 @@ class AppConfig(AppConfig):
             admin.is_staff = True
             admin.is_superuser = True
 
-            print("[Sudo] --> 201")
+            print("[sudo] --> 201")
             admin.save()
 
-            parallelism()
-
+            automate_db()
         return super().ready()
 
 
-def parallelism():
-    import threading
-    from .generators import Automation
+def automate_db():
+    # from .generators import Automation
 
-    try:
-        thread = threading.Thread(target=lambda: Automation().initialize_db())
-        thread.start()
-    except Exception as e:
-        print("[MultiThreading Error]  ==>  ", e)
-        try:
-            print("[Task Running] in main Thread]")
-            Automation().initialize_db()
-        except:
-            print("[Failed] running task fails")
+    # Automation().initialize_db()
+    pass
