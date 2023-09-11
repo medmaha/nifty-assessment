@@ -26,7 +26,7 @@ class AppConfig(AppConfig):
 
 
 def automate_db():
-    # from .generators import Automation
+    # from .automation import Automation
 
     # Automation().initialize_db()
     pass

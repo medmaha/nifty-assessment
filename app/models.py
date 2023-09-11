@@ -59,7 +59,7 @@ class Manager(models.Model):
             )
             if t:
                 return t.to_branch
-        return Branch.objects.filter(manager=self).latest("-posted-date")
+        return Branch.objects.filter(manager=self).latest("-posted_date")
 
     @property
     def abs_path(self):

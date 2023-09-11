@@ -174,6 +174,7 @@ def manager_details(request, id):
     return render(request, "app/manager-details.html", context)
 
 
+#? Form Search Handler
 def search_results(request):
     query = request.GET.get("query")
     model = request.GET.get("model")
@@ -233,6 +234,7 @@ def search_results(request):
     return render(request, f"app/partials/{__template_partial}", context)
 
 
+# ? Paginator Request Handler
 def paginate_results(request):
     page = request.GET.get("page")
     model = request.GET.get("m")
