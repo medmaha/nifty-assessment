@@ -267,95 +267,86 @@ def downloader(request, doc):
 
     context.update({"model": model, "model_id": model_id, "template_url": template_url})
 
-    match model.lower():
-        case "branch":
-            branch = get_object_or_404(Branch, id=model_id)
-            context["branch"] = branch
-        case "company":
-            company = get_object_or_404(Company, id=id)
+    if model.lower == "branch":
+        branch = get_object_or_404(Branch, id=model_id)
+        context["branch"] = branch
+    if model.lower == "company":
+        company = get_object_or_404(Company, id=id)
 
-            # Retrieve the branches associated with the company
-            branches = Branch.objects.filter(company=company).order_by("id").distinct()
+        # Retrieve the branches associated with the company
+        branches = Branch.objects.filter(company=company).order_by("id").distinct()
 
-            # Retrieve managers associated with those branches
-            managers = (
-                Manager.objects.filter(
-                    branch_code__in=branches.values_list("code"),
-                    branch__company=company,
-                )
-                .order_by("id")
-                .distinct()
+        # Retrieve managers associated with those branches
+        managers = (
+            Manager.objects.filter(
+                branch_code__in=branches.values_list("code"),
+                branch__company=company,
             )
+            .order_by("id")
+            .distinct()
+        )
 
-            if request.M_GENDER:
-                managers = managers.filter(gender__iexact=request.M_GENDER).order_by(
-                    "id"
-                )
+        if request.M_GENDER:
+            managers = managers.filter(gender__iexact=request.M_GENDER).order_by("id")
 
-            page = request.PAGINATOR_PAGE
-            branches_paginator = Paginator(branches, request.ITEMS_PER_PAGE).get_page(
-                page
-            )
-            managers_paginator = Paginator(managers, request.ITEMS_PER_PAGE).get_page(
-                page
-            )
+        page = request.PAGINATOR_PAGE
+        branches_paginator = Paginator(branches, request.ITEMS_PER_PAGE).get_page(page)
+        managers_paginator = Paginator(managers, request.ITEMS_PER_PAGE).get_page(page)
 
-            context.update(
-                {
-                    "company": company,
-                    "branches_page": branches_paginator,
-                    "managers_page": managers_paginator,
-                    "active_tab": "companies",
-                }
-            )
-
-        case "manager":
-            manager = get_object_or_404(Manager, id=model_id)
-            transfers = TransferHistory.objects.filter(manager=manager).order_by("id")
-            context["manager"] = manager
-            context["branch"] = manager.branch
-            context["transfers_page"] = transfers.distinct().order_by("-transfer_date")
-
-        case "managers":
-            managers = Manager.objects.filter(branch__gte=0)
-
-            if request.M_GENDER != "all":
-                managers = managers.filter(gender__iexact=request.M_GENDER).order_by(
-                    "id"
-                )
-
-            managers_paginator = Paginator(
-                managers.order_by("id").distinct(), request.ITEMS_PER_PAGE
-            ).get_page(request.PAGINATOR_PAGE)
-
-            context["gender"] = request.M_GENDER
-            context["managers_page"] = managers_paginator
-
-        case "transfers":
-            transfers = TransferHistory.objects.all().distinct()
-
-            transfers_paginator = Paginator(
-                transfers.order_by("id"), request.ITEMS_PER_PAGE
-            ).get_page(request.PAGINATOR_PAGE)
-
-            context["transfers_page"] = transfers_paginator
-
-        case "branches":
-            _branches = Branch.objects.filter().order_by("id").distinct()
-
-            paginator = Paginator(_branches, request.ITEMS_PER_PAGE)
-            branches_paginator = paginator.get_page(request.PAGINATOR_PAGE)
-
-            context = {
-                f"branches_page": branches_paginator,
+        context.update(
+            {
+                "company": company,
+                "branches_page": branches_paginator,
+                "managers_page": managers_paginator,
+                "active_tab": "companies",
             }
+        )
 
-        case "companies":
-            companies = Company.objects.all().order_by("id")
+    if model.lower == "manager":
+        manager = get_object_or_404(Manager, id=model_id)
+        transfers = TransferHistory.objects.filter(manager=manager).order_by("id")
+        context["manager"] = manager
+        context["branch"] = manager.branch
+        context["transfers_page"] = transfers.distinct().order_by("-transfer_date")
 
-            paginator = Paginator(companies, request.ITEMS_PER_PAGE)
-            companies_paginator = paginator.get_page(request.PAGINATOR_PAGE)
+    if model.lower == "managers":
+        managers = Manager.objects.filter(branch__gte=0)
 
-            context = {"companies_page": companies_paginator}
+        if request.M_GENDER != "all":
+            managers = managers.filter(gender__iexact=request.M_GENDER).order_by("id")
+
+        managers_paginator = Paginator(
+            managers.order_by("id").distinct(), request.ITEMS_PER_PAGE
+        ).get_page(request.PAGINATOR_PAGE)
+
+        context["gender"] = request.M_GENDER
+        context["managers_page"] = managers_paginator
+
+    if model.lower == "transfers":
+        transfers = TransferHistory.objects.all().distinct()
+
+        transfers_paginator = Paginator(
+            transfers.order_by("id"), request.ITEMS_PER_PAGE
+        ).get_page(request.PAGINATOR_PAGE)
+
+        context["transfers_page"] = transfers_paginator
+
+    if model.lower == "branches":
+        _branches = Branch.objects.filter().order_by("id").distinct()
+
+        paginator = Paginator(_branches, request.ITEMS_PER_PAGE)
+        branches_paginator = paginator.get_page(request.PAGINATOR_PAGE)
+
+        context = {
+            f"branches_page": branches_paginator,
+        }
+
+    if model.lower == "companies":
+        companies = Company.objects.all().order_by("id")
+
+        paginator = Paginator(companies, request.ITEMS_PER_PAGE)
+        companies_paginator = paginator.get_page(request.PAGINATOR_PAGE)
+
+        context = {"companies_page": companies_paginator}
 
     return render(request, "app/partials/download-base.html", context)
