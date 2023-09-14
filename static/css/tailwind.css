@@ -1,0 +1,125 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+@layer components{
+    
+    header nav ul .active{
+        @apply text-black font-semibold text-sm text-sky-500  hover:text-sky-400 transition
+    }
+
+    section{
+        @apply mb-4 pb-6
+    }
+    section.welcome h1{
+        @apply font-bold tracking-wide pb-1 text-2xl
+    }
+    section.welcome p{
+        @apply font-normal tracking-wide leading-relaxed text-xl
+    }
+
+
+    .btn{
+        @apply w-full rounded-md border transition-all duration-200
+         border-gray-300 shadow-sm px-3 py-1.5 bg-white text-sm font-medium
+          text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 
+          focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500
+    }
+
+    .app-table{
+        border-collapse: collapse;
+        font-size:.9rem;
+        @apply w-full
+    }
+
+    .app-table thead tr{
+        @apply bg-gray-300 text-left font-semibold
+    }
+    .app-table tbody tr{
+        @apply border-b
+    }
+
+    .app-table tbody tr:nth-last-of-type(odd){
+        @apply bg-gray-100
+    }
+    .app-table tbody tr:last-of-type{
+        @apply border-b-2 border-gray-300
+    }
+
+    .app-table th,
+    .app-table td{
+       padding: 12px 15px;
+       max-width:30ch;
+    }
+
+    .app-table .remarks{
+        @apply line-clamp-2
+    }
+
+    .app-table .name{
+        @apply text-base
+    }
+
+
+    .app-table a{
+        @apply text-sky-600 hover:text-sky-700 transition
+    }
+
+
+    .m-gender .active{
+        @apply text-sky-600 hover:text-sky-700 transition
+    }
+
+   
+
+    @page {
+
+        table{
+            border-collapse: collapse;
+            font-size:.9rem;
+            @apply w-full
+        }
+    
+        table thead tr{
+            @apply bg-gray-300 text-left font-semibold
+        }
+        table tbody tr{
+            @apply border-b
+        }
+    
+        table tbody tr:nth-last-of-type(odd){
+            @apply bg-gray-100
+        }
+        table tbody tr:last-of-type{
+            @apply border-b-2 border-gray-300
+        }
+    
+        table th,
+        table td{
+           padding: 12px 15px;
+           max-width:30ch;
+        }
+    
+        table .remarks{
+            @apply line-clamp-2
+        }
+    
+        table .name{
+            @apply text-base
+        }
+    
+    
+        table a{
+            @apply text-sky-600 hover:text-sky-700 transition
+        }
+    
+    
+   
+    
+       
+    
+     
+    
+   }
+}

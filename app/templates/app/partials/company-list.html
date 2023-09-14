@@ -1,4 +1,4 @@
-<table>
+<table class="app-table">
   <thead>
     <tr>
       <th>Name</th>
@@ -25,27 +25,8 @@
 </table>
 
 {% if not companies_page %}
-  <p style="padding: 1rem;">No Results Found</p>
+  <p>No Results Found</p>
 {% endif %}
 
-{% if companies_page.has_previous or companies_page.has_next %}
-  <div style="display:flex;align-items: center;justify-content: space-between; width:100%">
-    <p>Total: {{ companies_page.paginator.count }}</p>
-    <div class="pagination">
-      <span class="step-links">
-        {% if companies_page.has_previous %}
-          {% if companies_page.number > 2 %}
-            <a hx-target="#companyList" hx-trigger="click" hx-get="paginate?m=company&page=1">&laquo; First Page</a>
-          {% endif %}
-          <a hx-target="#companyList" hx-trigger="click" hx-get="paginate?m=company&page={{ companies_page.previous_page_number }}">Prev</a>
-        {% endif %}
+{% include 'app/partials/paginator.html' with paginator_obj=companies_page triggerTarget="#companiesList" model="companies" %}
 
-        {% if companies_page.has_next %}
-          <a hx-target="#companyList" hx-trigger="click" hx-get="paginate?m=company&page={{ companies_page.next_page_number }}">Next</a>
-          <a hx-target="#companyList" hx-trigger="click" hx-get="paginate?m=company&page={{ companies_page.paginator.num_pages }}">Last Page &raquo;</a>
-        {% endif %}
-      </span>
-      <span class="current-page">Page {{ companies_page.number }} of {{ companies_page.paginator.num_pages }}.</span>
-    </div>
-  </div>
-{% endif %}

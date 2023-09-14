@@ -1,6 +1,7 @@
-<table>
-  <thead>
+<table class="app-table">
+  <thead class="">
     <tr>
+      <th>ID</th>
       <th>Name</th>
       <th>Company</th>
       <th>Branch</th>
@@ -8,14 +9,18 @@
       <th>Gender</th>
     </tr>
   </thead>
-  <tbody>
+  <tbody class="">
     {% for manager in managers_page %}
       <tr>
         {# prettier-ignore-start #}
         <td>
-         <a class="table-link"  href="{{manager.abs_path}}">
+          {{manager.id}}
+  
+        </td>
+        <td>
+         <a class="table-link name"  href="{{manager.abs_path}}">
                 {{manager.name}}
-              </a>
+            </a>
         </td>
         <td>
           <a class="table-link"  href="{{manager.company.abs_path}}">
@@ -35,27 +40,12 @@
     {% endfor %}
   </tbody>
 </table>
-{% if not managers_page %}
-  <p style="padding: 1rem;">No Results Found</p>
-{% endif %}
-{% if managers_page.has_previous or managers_page.has_next %}
-  <div style="display:flex;align-items: center;justify-content: space-between; width:100%">
-    <p>Total: {{ managers_page.paginator.count }}</p>
-    <div class="pagination">
-      <span class="step-links">
-        {% if managers_page.has_previous %}
-          {% if managers_page.number > 2 %}
-            <a hx-target="#managersList" hx-trigger="click" hx-get="/paginate?m=managers&page=1">&laquo; First Page</a>
-          {% endif %}
-          <a hx-target="#managersList" hx-trigger="click" hx-get="/paginate?m=managers&page={{ managers_page.previous_page_number }}">Prev</a>
-        {% endif %}
 
-        {% if managers_page.has_next %}
-          <a hx-target="#managersList" hx-trigger="click" hx-get="/paginate?m=managers&page={{ managers_page.next_page_number }}">Next</a>
-          <a hx-target="#managersList" hx-trigger="click" hx-get="/paginate?m=managers&page={{ managers_page.paginator.num_pages }}">Last Page &raquo;</a>
-        {% endif %}
-      </span>
-      <span class="current-page">Page {{ managers_page.number }} of {{ managers_page.paginator.num_pages }}.</span>
-    </div>
-  </div>
+{% if not managers_page %}
+  <p>No Results Found</p>
 {% endif %}
+
+<span>
+
+  {% include 'app/partials/paginator.html' with paginator_obj=managers_page triggerTarget="#managersList" model="managers" %}
+</span>

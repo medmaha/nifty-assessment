@@ -1,0 +1,23 @@
+{% if paginator_obj.has_previous or paginator_obj.has_next %}
+  <div class="flex items-center justify-between py-1 border-b px-2" data-paginator>
+    <p class="font-semibold">Total: {{ paginator_obj.paginator.count }}</p>
+    <div class="pagination inline-flex flex-col items-center gap-2 py-1 min-w-max">
+      <div class="grid grid-cols-[auto,auto,auto,auto] gap-2">
+        {% if paginator_obj.has_previous %}
+          {% if paginator_obj.number > 2 %}
+            <button class="btn cursur-pointer" hx-target="{{ triggerTarget }}" hx-trigger="click" hx-get="paginate?m={{ model }}&page=1">&laquo; First Page</button>
+          {% endif %}
+          <button class="btn cursur-pointer" hx-target="{{ triggerTarget }}" hx-trigger="click" hx-get="paginate?m={{ model }}&page={{ paginator_obj.previous_page_number }}">Prev</button>
+        {% endif %}
+
+        {% if paginator_obj.has_next %}
+          <button class="btn cursur-pointer" hx-target="{{ triggerTarget }}" hx-trigger="click" hx-get="paginate?m={{ model }}&page={{ paginator_obj.next_page_number }}">Next</button>
+          <button class="btn cursur-pointer" hx-target="{{ triggerTarget }}" hx-trigger="click" hx-get="paginate?m={{ model }}&page={{ paginator_obj.paginator.num_pages }}">Last Page &raquo;</button>
+        {% endif %}
+      </div>
+      <div class="flex items-center gap-8 pr-8">
+        <span class="current-page text-xs">Page {{ paginator_obj.number }} of {{ paginator_obj.paginator.num_pages }}.</span>
+      </div>
+    </div>
+  </div>
+{% endif %}

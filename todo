@@ -1,0 +1,48 @@
+COMPANY
+name
+street_number
+Street_name
+Phone_number
+Po_box_number
+town
+
+REGIONS
+region_code
+region_name
+
+BRANCH
+region_code
+br_code
+br_name
+manager_code
+posting_date
+
+TRANSFER HISTORY
+Manager_code
+Br_code
+posting_date
+transfer_date
+remarks
+
+MANAGER
+manager_code
+br_mg_firstname
+br_mg_middlename
+br_mg_surname
+br_mg_phone_1
+br_mg_phone_2
+br_mg_email
+
+I hereby attach a draft of the system I would like you to develop for me, pls.
+
+You can use either MySQL, Microsoft SQL Server or Oracle as the database management system.
+The system should be part of a financial management system where branches are in regions and each branch is managed by a manager.
+Managers can be transferred from one branch to another and the system should keep the transfer history of the manager.
+
+The system should have the following reports:
+List of managers
+List managers by gender
+List of manager that have been transferred within a given period – e.g. from 1st January 2020 to 30th March 2020.
+The reports be on the company letterhead.
+
+The system should be able generate a query like ‘who is the manager in a given branch’?

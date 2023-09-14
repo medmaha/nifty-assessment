@@ -15,4 +15,5 @@ urlpatterns = [
     path("transfer-histories", views.transfer_histories, name="transfer-histories"),
     path("query", views.search_results, name="search_results"),
     path("paginate", views.paginate_results, name="paginate"),
+    path("download/<doc>", views.downloader, name="pdf_downloader"),
 ]

@@ -1,107 +1,80 @@
 {% extends 'app/base.html' %}
+<!--  -->
+{% block header %} {% endblock %}
+<!--  -->
+{% block content%}
+<section class="grid grid-cols-[auto,auto] mb-0 pb-6 w-max mx-auto gap-4 sm:gap-8 md:gap-12">
+    <div class="grid grid-cols-1 gap-2">
+        <div class="flex flex-col">
+            <h1 class="font-bold text-xl tracking-wide">Manager Details</h1>
+            <p class="font-normal tracking-wide leading-relaxed max-w-[45ch]">
+                The insights into
+                <strong>
+                    {% if manager.gender.lower == 'male' %} Mr. {{
+                    manager.last_name }} {% else %} Mrs. {{ manager.last_name }}
+                    {% endif %} </strong
+                >'s career path. Notable managerial records
+            </p>
+        </div>
+        <div class="w-max">
+            {% include 'app/partials/action-buttons.html' with template_url="/manager/details" model="manager" model_id=manager.id %}
+        </div>
 
-<!-- Header -->
-{% block header %}
-  <h1>Manager Details</h1>
-  <p>
-    Learn more about the management history of
-    {# prettier-ignore-start #}
-    <strong>
-        {% if manager.gender.lower == 'male' %}
-        Mr. {{ manager.last_name }} 
-        {% else %}
-        Mrs. {{ manager.last_name }} 
-        {% endif %}
-    </strong>
-    {# prettier-ignore-end #}
-  </p>
-  <!-- <h1 class="heading">{{manager.last_name}}</h1> -->
-{% endblock %}
-
-{% block content %}
-  <section style="max-width:max-content; margin: 0 auto">
-    <table>
-      <tr>
-        <td>
-          <strong>Full Name:</strong>
-        </td>
-        <td>{{ manager.name }}</td>
-      </tr>
-      <tr>
-        <td>
-          <strong>Email:</strong>
-        </td>
-        <td>{{ manager.email }}</td>
-      </tr>
-      <tr>
-        <td>
-          <strong>Phone:</strong>
-        </td>
-        <td>{{ manager.phone }}</td>
-      </tr>
-      <tr>
-        <td>
-          <strong>Gender:</strong>
-        </td>
-        <td>{{ manager.gender }}</td>
-      </tr>
-    </table>
-  </section>
-  <section class="">
-    <div class="" style="
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 1rem 0;
-        ">
-      <h3>Current Branch</h3>
-    </div>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Company</th>
-          <th>Region</th>
-          <th>Phone</th>
-          <th>Date Posted</th>
-        </tr>
-      </thead>
-      <tbody>
-        <td>{{ branch.name }}</td>
-        <td>
-          {# prettier-ignore #}
-          <a class="table-link" href="{{ branch.company.abs_path }}">
-            {{ branch.company.name }}
-          </a>
-        </td>
-        <td>{{ branch.region.name.upper }}</td>
-        <td>
-          <span class="date">{{ branch.manager.phone }}</span>
-        </td>
-        <td>
-          <span class="date">{{ branch.posted_date|date:'jS M Y' }}</span>
-        </td>
-      </tbody>
-    </table>
-  </section>
-  <section class="">
-    <div class="" style="
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 1rem 0;
-        ">
-      <h3>Transfer Histories</h3>
-      <!--              <form method="get" style="margin-top: 1rem">
-            <label for="transfer_date">Filter by Transfer Date:</label>
-            <input type="date" name="transfer_date" id="transfer_date" />
-            <button type="submit">Filter</button>
-        </form>              -->
+        
     </div>
 
-    <!--  -->
+    <div class="grid grid-cols-1 gap-3 w-max p-4 shadow-lg">
+        <div class="detail">
+            <strong>Full Name:</strong>
+            <span>{{ manager.name }}</span>
+        </div>
+        <div class="detail">
+            <strong>Email:</strong>
+            <span>{{ manager.email }}</span>
+        </div>
+        <div class="detail">
+            <strong>Phone:</strong>
+            <span>{{ manager.phone }}</span>
+        </div>
+        <div class="detail">
+            <strong>Gender:</strong>
+            <span>{{ manager.gender }}</span>
+        </div>
+    </div>
+</section>
+
+{% comment %} Current Branch {% endcomment %}
+<section class="section" data-actionable>
+	<div class="flex sm:p-2 justify-between items-center gap-4 pb-1 section-header">
+		<h3 class="font-bold text-xl tracking-wide">Current Branch</h3>
+		{% include 'app/partials/action-buttons.html' with template_url="/manager/current-branch" model="branch" model_id=manager.branch.id %}
+	</div>
+
+	{% include 'app/partials/manager/current-branch.html' with brabch="branch" %}
+
+</section>
+
+{% comment %} Transfer Histories {% endcomment %}
+<section>
+	<div class="flex justify-between items-center gap-4 pb-1 section-header">
+		<h3 class="font-bold text-xl tracking-wide">Transfer Histories</h3>
+		{% include 'app/partials/action-buttons.html' with  template_url="/manager/transfer-records" model="transfers" model_id=manager.id  %}
+	</div>
+
+
     <div id="transfersList">
-      {% include 'app/partials/transfer-list.html' %}
+
+        {% include 'app/partials/manager/transfer-records.html' with transfers=transfers_page %}
     </div>
-  </section>
+
+	{% if not transfers_page %}
+	<p>No recent transfer</p>
+	{% endif %}
+	<!--  -->
+    
+	{% include 'app/partials/paginator.html' with paginator_obj=transfers_page triggerTarget="#transfersList" model="transfers" %}
+
+
+</section>
+
 {% endblock %}

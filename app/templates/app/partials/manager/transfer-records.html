@@ -1,11 +1,6 @@
 <table class="app-table">
   <thead>
     <tr>
-      <th>
-        <div class="flex-between">
-          <span>Manager</span>
-        </div>
-      </th>
       <th>From</th>
       <th>To</th>
       <th>Company</th>
@@ -18,14 +13,8 @@
     </tr>
   </thead>
   <tbody>
-    {% for transfer in transfers_page %}
+    {% for transfer in transfers %}
       <tr>
-        <td>
-          {# prettier-ignore #}
-          <a href="{{transfer.manager.abs_path}}" class="table-link name" >
-            {{ transfer.manager.name }}
-          </a>
-        </td>
         <td>
           <span class="remarks">{{ transfer.from_branch.name }}</span>
         </td>
@@ -33,10 +22,11 @@
           <span class="remarks">{{ transfer.to_branch.name }}</span>
         </td>
         <td>
-          {# prettier-ignore #}
-          <a href="{{transfer.manager.company.abs_path}}" class="table-link name" >
+          {% if not download %}
+            <a href="{{ transfer.manager.company.abs_path }}" class="table-link name">{{ transfer.manager.company.name }}</a>
+          {% else %}
             {{ transfer.manager.company.name }}
-          </a>
+          {% endif %}
         </td>
         <td>
           <span class="date">{{ transfer.transfer_date|date:'jS M Y' }}</span>
@@ -48,8 +38,3 @@
     {% endfor %}
   </tbody>
 </table>
-{% if not transfers_page %}
-  <p>No recent transfer</p>
-{% endif %}
-
-{% include 'app/partials/paginator.html' with paginator_obj=transfers_page triggerTarget="#transfersList" model="transfers" %}

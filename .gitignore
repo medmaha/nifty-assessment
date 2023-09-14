@@ -1,4 +1,6 @@
+node_modules/
+/tailwind.config.js
+/package.json
+
 venv/
 /db.json
-__pycache__/
-todo

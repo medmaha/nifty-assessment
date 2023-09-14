@@ -1,3 +1,9 @@
 {
-    "cSpell.words": ["Africell", "Gamtel", "Nitfy"]
+    "cSpell.words": ["Africell", "Gamtel", "Nitfy"],
+
+    "[css]": {
+        "editor.formatOnPaste": false,
+        "editor.formatOnSave": false
+    },
+    "editor.tabSize": 4
 }

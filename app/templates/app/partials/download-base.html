@@ -1,0 +1,89 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      {% if active_tab.lower != 'home' %}
+        {{ active_tab.capitalize }} |
+      {% endif %}Nifty's Assessment
+    </title>
+
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
+
+    <style>
+      header,
+      footer,
+      [data-paginator],
+      .actionButtons {
+        display: none !important;
+      }
+      @media print {
+        #actionButtons {
+          display: none;
+        }
+      
+        main {
+          margin-top: 0.8rem !important;
+        }
+      }
+    </style>
+
+    <script>
+      var META = { model: '{{model}}', model_id: '{{model_id}}', template_url: '{{template_url}}' }
+    </script>
+  </head>
+  <body class="">
+    <main class="p-4 pt-1 min-h-[calc(100vh-70px)]">
+      <div class="flex justify-center gap-8 items-center action-buttons w-[80%] mx-auto pt-4 pb-4 mb-2 border-b" id="actionButtons">
+        <div class="">
+          <button onclick="goBack()" class="btn">Cancel</button>
+        </div>
+        <div class="">
+          <button onclick="saveAsPDF()" class="btn">Save As PDF</button>
+        </div>
+      </div>
+      {% include template_source %}
+    </main>
+
+    <script>
+      let url = '?'
+      let idx = 0
+      for (const [key, value] of Object.entries(META)) {
+        if (idx === 0) url += `${key}=${value}`
+        else url += `&${key}=${value}`
+      
+        idx++
+      }
+      
+      window.history.replaceState(META, '', url)
+      
+      function goBack() {
+        window.history.back()
+      }
+      function saveAsPDF() {
+        print()
+      }
+      if (location.pathname.match(/print/gi)) {
+        print()
+      
+        const printWindow = window.open()
+      
+        const checkPrintWindow = setInterval(() => {
+          if (!printWindow || printWindow.closed) {
+            // The print window is closed
+            clearInterval(checkPrintWindow)
+            goBack()
+          }
+        }, 1200)
+      
+        document.getElementById('actionButtons').innerHTML = `
+                                                <div class="">
+                                                  <button onclick="goBack()" class="btn">Go Back</button>
+                                              </div>
+                                            `
+      }
+    </script>
+  </body>
+</html>

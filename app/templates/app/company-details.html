@@ -3,30 +3,24 @@
 <!-- Header -->
 {% block header %}
   <h1 class="heading" style="margin: 0;padding: 0;">{{ company.name }}</h1>
-  <p>
+  <p class="text-center">
     {{ company.town }}, {{ company.street_number }} {{ company.street_name }} <br /> <small>Tel:</small> <span style="font-size:14px">{{ company.phone_number }}</span>
   </p>
 {% endblock %}
 <!-- Content -->
 {% block content %}
   <section class="">
-    <h2>Branches</h2>
+    <div class="flex justify-between items-center gap-4 pb-1">
+      <h3 class="font-bold text-xl tracking-wide">Branches</h3>
+    </div>
     <div id="branchesList">
       {% include 'app/partials/branch-list.html' %}
     </div>
   </section>
 
   <section class="">
-    <div class="flex-between h3">
-      <h3>Managers</h3>
-      <div class="flex-between">
-        <p style="font-size: 15px">Sort-by Gender:</p>
-        <div style="display: flex; align-items: center; gap: 0.5rem">
-          <a href="/?m-gender=all" class="gender {% if not gender or gender.lower == 'all' %}{% endif %}"><small>All</small></a>
-          <a href="/?m-gender=male" class="gender {% if gender == 'male' %}{% endif %}"><small>Male</small></a>
-          <a href="/?m-gender=female" class="gender {% if gender == 'female' %}{% endif %}"><small>Female</small></a>
-        </div>
-      </div>
+    <div class="flex justify-between items-center gap-4 pb-1">
+      <h3 class="font-bold text-xl tracking-wide">Managers</h3>
     </div>
 
     <div id="managersList">

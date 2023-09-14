@@ -12,3 +12,4 @@ def query_params(url: str):
             params[key] = value
 
     return params
+

@@ -1,22 +1,21 @@
 {% extends 'app/base.html' %}
 
 {% block header %}
-  <h1>Every Transfer History</h1>
+  <h1>Transfer Records Dashboard</h1>
+  <p>Efficiently search and track the movement of data and assets</p>
   <div class="search-container">
     <form hx-trigger="change" hx-indicator="#date-filtering" hx-target="#transfersList" hx-get="{% url 'search_results' %}" style="width: 100%; padding-top: 1rem;">
       <div style="display: flex; align-items: center; gap:2rem">
-        <div style="display: inline-flex; flex-direction: column; gap:3px">
-          <label for="from">From:</label>
-          <input type="date" id="from" placeholder="Search by transfer_date..." style="width: max-content;" name="from_date" class="search-input" value="2000-01-01" min="2000-01-01" max="2021-12-31" />
+        <div class="flex items-center justify-center flex-col gap-1">
+          <label for="from">From</label>
+          <input value="2000-01-01" min="2000-01-01" max="2021-12-31" name="from_date" type="date" id="from" class="w-full font-semibold rounded-lg shadow max-w-max border outline-none text-lg transition focus:border-sky-500 h-full px-2 py-0.5" />
         </div>
-        <div style="display: inline-flex; flex-direction: column; gap:3px">
-          <label for="to">To:</label>
-          <input type="date" id="to" placeholder="Search by transfer_date..." style="width: max-content;" name="to_date" class="search-input" value="2022-12-31" min="2001-01-01" max="2022-12-31" />
+        <div class="flex items-center justify-center flex-col gap-1">
+          <label for="to">To</label>
+          <input type="date" id="to" name="to_date" class="shadow font-semibold w-full rounded-lg max-w-max border outline-none text-lg transition focus:border-sky-500 h-full px-2 py-0.5" value="2022-12-31" min="2001-01-01" max="2022-12-31" />
         </div>
       </div>
       <input type="hidden" name="model" value="transfer" />
-
-      <span id="date-filtering">Loading</span>
     </form>
   </div>
 {% endblock %}
@@ -24,6 +23,10 @@
 {% block content %}
   <section class="">
     <!--  -->
+    <div class="flex justify-between items-center gap-4 pb-1 section-header">
+        <div class=""></div>
+        {% include 'app/partials/action-buttons.html' with  template_url="/transfer-list" model="transfers" model_id=0  %}
+    </div>
     <div id="transfersList">
       {% include 'app/partials/transfer-list.html' %}
     </div>

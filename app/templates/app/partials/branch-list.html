@@ -1,4 +1,4 @@
-<table>
+<table class="app-table">
   <thead>
     <tr>
       <th>Name</th>
@@ -19,7 +19,7 @@
           </a>
         </td>
         <td>
-            <a class="table-link" href="{{ branch.manager.abs_path }}">
+            <a class="table-link name" href="{{ branch.manager.abs_path }}">
               {{ branch.manager.name }}
             </a>
         </td>
@@ -29,24 +29,5 @@
     {% endfor %}
   </tbody>
 </table>
-{% if branches_page.has_previous or branches_page.has_next %}
-  <div style="display:flex;align-items: center;justify-content: space-between; width:100%">
-    <p>Total: {{ branches_page.paginator.count }}</p>
-    <div class="pagination">
-      <span class="step-links">
-        {% if branches_page.has_previous %}
-          {% if branches_page.number > 2 %}
-            <a hx-target="#branchesList" hx-trigger="click" hx-get="/paginate?m=branches&page=1">&laquo; First Page</a>
-          {% endif %}
-          <a hx-target="#branchesList" hx-trigger="click" hx-get="/paginate?m=branches&page={{ branches_page.previous_page_number }}">Prev</a>
-        {% endif %}
 
-        {% if branches_page.has_next %}
-          <a hx-target="#branchesList" hx-trigger="click" hx-get="/paginate?m=branches&page={{ branches_page.next_page_number }}">Next</a>
-          <a hx-target="#branchesList" hx-trigger="click" hx-get="/paginate?m=branches&page={{ branches_page.paginator.num_pages }}">Last Page &raquo;</a>
-        {% endif %}
-      </span>
-      <span class="current-page">Page {{ branches_page.number }} of {{ branches_page.paginator.num_pages }}.</span>
-    </div>
-  </div>
-{% endif %}
+{% include 'app/partials/paginator.html' with paginator_obj=branches_page triggerTarget="#branchesList" model="branches" %}
