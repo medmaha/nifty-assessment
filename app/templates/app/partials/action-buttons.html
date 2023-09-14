@@ -1,23 +1,25 @@
 <div class="flex justify-center gap-4 pb-1 items-center action-buttons actionButtons">
-    <div class="">
-        <form action="" id="ippForm" class="flex items-center gap-2 w-max">
-        <label for="ipp" class="text-gray-700 font-semibold text-xs inline-block min-w-max">Number Of Items:</label>
-        <select id="ipp"  onchange="ippSubmit(this)" name="ipp" class="btn block appearance-none w-max text-sm relative hover:bg-gray-200 border border-gray-300 hover:border-gray-400 text-center py-1 shadow leading-tight focus:outline-none focus:ring">
-            <option value="5" {% if IPP == 5 %}selected {% endif %}>5</option>
-            <option value="10" {% if IPP == 10 %}selected {% endif %}>10</option>
-            <option value="15" {% if IPP == 15 %}selected {% endif %}>15</option>
-            <option value="25" {% if IPP == 25 %}selected {% endif %}>25</option>
-            <option value="50" {% if IPP == 50 %}selected {% endif %}>50</option>
-            <option value="100" {% if IPP == 100 %}selected {% endif %}>100</option>
-    
-            {% comment %} <span class="absolute right-0 top-0 w-6 inline-flex items-center justify-center rotate-90">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" width="16" height="16" viewBox="0 0 24 24">
-                <path d="M7.41 7.84L12 12.42l4.59-4.58L18 9.25l-6 6-6-6z" />
-            </svg>
-            </span> {% endcomment %}
-        </select>
-        </form>
-    </div>
+    {% if not no_ipp %}
+        <div class="">
+            <form action="" id="ippForm" class="flex items-center gap-2 w-max">
+            <label for="ipp" class="text-gray-700 font-semibold text-xs inline-block min-w-max">Number Of Items:</label>
+            <select id="ipp"  onchange="ippSubmit(this)" name="ipp" class="btn block appearance-none w-max text-sm relative hover:bg-gray-200 border border-gray-300 hover:border-gray-400 text-center py-1 shadow leading-tight focus:outline-none focus:ring">
+                <option value="5" {% if IPP == 5 %}selected {% endif %}>5</option>
+                <option value="10" {% if IPP == 10 %}selected {% endif %}>10</option>
+                <option value="15" {% if IPP == 15 %}selected {% endif %}>15</option>
+                <option value="25" {% if IPP == 25 %}selected {% endif %}>25</option>
+                <option value="50" {% if IPP == 50 %}selected {% endif %}>50</option>
+                <option value="100" {% if IPP == 100 %}selected {% endif %}>100</option>
+        
+                {% comment %} <span class="absolute right-0 top-0 w-6 inline-flex items-center justify-center rotate-90">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" width="16" height="16" viewBox="0 0 24 24">
+                    <path d="M7.41 7.84L12 12.42l4.59-4.58L18 9.25l-6 6-6-6z" />
+                </svg>
+                </span> {% endcomment %}
+            </select>
+            </form>
+        </div>
+    {% endif %}
 
     <div class="">
          <form action="/download/print">
