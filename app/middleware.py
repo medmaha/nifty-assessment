@@ -24,7 +24,7 @@ class AppMiddleware:
 
         request.ITEMS_PER_PAGE = request.session.get("ITEMS_PER_PAGE", 10)
         request.PAGINATOR_PAGE = request.session.get("PAGINATOR_PAGE")
-        request.M_GENDER = request.session.get("M_GENDER", "all")
+        request.M_GENDER = request.session.get("M_GENDER", "all").lower()
 
         response = self.get_response(request)
 
